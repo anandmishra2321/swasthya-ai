@@ -11,6 +11,9 @@ import {
   Lock,
   Clock,
   Eye,
+  Database,
+  RefreshCw,
+  Trash2,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
@@ -18,7 +21,7 @@ import { VerificationCase } from '../../types';
 
 export const AdminDashboard: React.FC = () => {
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'verification' | 'analytics' | 'audit'>('verification');
+  const [activeTab, setActiveTab] = useState<'verification' | 'analytics' | 'audit' | 'demo'>('verification');
 
   // Verification Queue State
   const [cases, setCases] = useState<VerificationCase[]>([]);
@@ -33,10 +36,15 @@ export const AdminDashboard: React.FC = () => {
   // Audit Logs State
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
 
+  // Demo Data State
+  const [demoStatus, setDemoStatus] = useState<any>(null);
+  const [seedingLoading, setSeedingLoading] = useState(false);
+
   useEffect(() => {
     fetchVerificationQueue();
     fetchAnalytics();
     fetchAuditLogs();
+    fetchDemoStatus();
   }, []);
 
   const fetchVerificationQueue = async () => {
@@ -71,6 +79,34 @@ export const AdminDashboard: React.FC = () => {
       if (res.success) setAuditLogs(res.data);
     } catch (err) {
       console.error('Failed to load audit logs:', err);
+    }
+  };
+
+  const fetchDemoStatus = async () => {
+    try {
+      const res: any = await api.get('/demo/status');
+      if (res.success) setDemoStatus(res.data);
+    } catch (err) {
+      console.error('Failed to load demo status:', err);
+    }
+  };
+
+  const handleSeedDemoData = async (forceReset = false) => {
+    if (!confirm(forceReset ? 'This will delete all existing data and reseed demo data. Continue?' : 'Seed demo data?')) {
+      return;
+    }
+
+    try {
+      setSeedingLoading(true);
+      const res: any = await api.post('/demo/seed', { forceReset });
+      if (res.success) {
+        alert(res.message);
+        fetchDemoStatus();
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to seed demo data');
+    } finally {
+      setSeedingLoading(false);
     }
   };
 
@@ -150,6 +186,18 @@ export const AdminDashboard: React.FC = () => {
         >
           <Clock className="w-4 h-4" />
           System Audit Trail ({auditLogs.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('demo')}
+          className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition-all ${
+            activeTab === 'demo'
+              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40 rounded-t-xl'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <Database className="w-4 h-4" />
+          Demo Data Management
         </button>
       </div>
 
@@ -398,6 +446,60 @@ export const AdminDashboard: React.FC = () => {
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 4: Demo Data Management */}
+      {activeTab === 'demo' && (
+        <div className="space-y-6">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-6">
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+              <Database className="w-5 h-5 text-indigo-600" />
+              Demo Data Management
+            </h2>
+
+            {demoStatus ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Users</div>
+                  <div className="text-2xl font-black text-slate-900 mt-1">{demoStatus.userCount}</div>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Organizations</div>
+                  <div className="text-2xl font-black text-slate-900 mt-1">{demoStatus.orgCount}</div>
+                </div>
+                <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Doctors</div>
+                  <div className="text-2xl font-black text-slate-900 mt-1">{demoStatus.doctorCount}</div>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8 text-slate-400 text-xs">Loading demo status...</div>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-200">
+              <button
+                onClick={() => handleSeedDemoData(false)}
+                disabled={seedingLoading}
+                className="flex-1 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <RefreshCw className={`w-4 h-4 ${seedingLoading ? 'animate-spin' : ''}`} />
+                Seed Demo Data
+              </button>
+              <button
+                onClick={() => handleSeedDemoData(true)}
+                disabled={seedingLoading}
+                className="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-xl font-bold text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+              >
+                <Trash2 className={`w-4 h-4 ${seedingLoading ? 'animate-spin' : ''}`} />
+                Reset & Reseed
+              </button>
+            </div>
+
+            <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-xs text-amber-900">
+              <strong>⚠️ Warning:</strong> "Reset & Reseed" will delete all existing data including users, appointments, and records. Use with caution in development environments only.
+            </div>
           </div>
         </div>
       )}

@@ -35,6 +35,7 @@ import notificationRoutes from './routes/notifications';
 import referralRoutes from './routes/referrals';
 import reminderRoutes from './routes/reminders';
 import paymentRoutes from './routes/payments';
+import demoRoutes from './routes/demo';
 
 export function createApp(): Application {
 
@@ -121,6 +122,7 @@ export function createApp(): Application {
   apiV1.use('/referrals', referralRoutes);
   apiV1.use('/reminders', reminderRoutes);
   apiV1.use('/payments', paymentRoutes);
+  apiV1.use('/demo', demoRoutes);
 
   // Serve uploaded files
   app.use('/uploads', express.static(path.resolve(env.STORAGE_DIR || 'uploads')));
