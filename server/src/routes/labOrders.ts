@@ -4,8 +4,12 @@ import { LabOrder, SampleStatus } from '../models/LabOrder';
 import { authenticate, AuthRequest } from '../middlewares/auth';
 import { requireRole } from '../middlewares/rbac';
 import { validateBody } from '../middlewares/validate';
-import { AIService } from '../services/aiService';
 import { logAuditEvent } from '../services/auditService';
+import { canAccessLabOrder } from '../services/accessControlService';
+import { sendError, ErrorCode } from '../utils/response';
+import { emitToUser } from '../services/socketService';
+import { createPdfBuffer } from '../utils/pdf';
+import { logger } from '../utils/logger';
 import mongoose from 'mongoose';
 
 const router = Router();
@@ -78,7 +82,8 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
       data: orders,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to list lab orders', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -91,22 +96,50 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response): Promis
       .populate('releasedBy', 'name role');
 
     if (!order) {
-      res.status(404).json({ success: false, error: 'Lab order not found.' });
+      sendError(res, 404, ErrorCode.NOT_FOUND, 'Lab order not found.');
       return;
     }
 
     // Patient access check
     if (req.user!.role === 'patient') {
       if (order.patientId._id.toString() !== (req.user!._id as mongoose.Types.ObjectId).toString()) {
-        res.status(403).json({ success: false, error: 'Access denied: You can only view your own lab orders.' });
+        sendError(res, 403, ErrorCode.FORBIDDEN, 'Access denied: You can only view your own lab orders.');
         return;
       }
 
       if (!order.isReleasedToPatient) {
-        res.status(403).json({
-          success: false,
-          error: 'Lab report access is withheld: This report has not yet been authorized or released by the laboratory.',
+        sendError(
+          res,
+          403,
+          ErrorCode.FORBIDDEN,
+          'Lab report access is withheld: This report has not yet been authorized or released by the laboratory.'
+        );
+        return;
+      }
+    } else {
+      // Staff access is object-scoped: laboratory staff must belong to the
+      // performing lab, clinicians must hold a relationship to the patient.
+      const decision = await canAccessLabOrder(
+        req.user!._id as mongoose.Types.ObjectId,
+        req.user!.role,
+        {
+          patientId: (order.patientId as any)._id ?? order.patientId,
+          organizationId: (order.organizationId as any)?._id ?? order.organizationId,
+        }
+      );
+
+      if (!decision.allowed) {
+        await logAuditEvent({
+          actorId: req.user!._id as mongoose.Types.ObjectId,
+          actorEmail: req.user!.email,
+          actorRole: req.user!.role,
+          action: 'LAB_ORDER_ACCESS_DENIED',
+          targetType: 'LabOrder',
+          targetId: order._id.toString(),
+          organizationId: ((order.organizationId as any)?._id ?? order.organizationId) as mongoose.Types.ObjectId,
+          details: { reason: decision.reason, detail: decision.detail },
         });
+        sendError(res, 403, ErrorCode.FORBIDDEN, 'Access denied: you are not authorised to view this lab order.');
         return;
       }
     }
@@ -116,7 +149,8 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response): Promis
       data: order,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to fetch lab order', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -145,7 +179,8 @@ router.post('/', authenticate, validateBody(createLabOrderSchema), async (req: A
       data: order,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to create lab order', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -160,7 +195,7 @@ router.patch(
       const order = await LabOrder.findById(req.params.id);
 
       if (!order) {
-        res.status(404).json({ success: false, error: 'Lab order not found.' });
+        sendError(res, 404, ErrorCode.NOT_FOUND, 'Lab order not found.');
         return;
       }
 
@@ -177,7 +212,8 @@ router.patch(
         data: order,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to update lab order status', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );
@@ -194,7 +230,7 @@ router.patch(
       const order = await LabOrder.findById(req.params.id);
 
       if (!order) {
-        res.status(404).json({ success: false, error: 'Lab order not found.' });
+        sendError(res, 404, ErrorCode.NOT_FOUND, 'Lab order not found.');
         return;
       }
 
@@ -202,22 +238,18 @@ router.patch(
       order.technicianNotes = technicianNotes;
       order.sampleStatus = 'completed';
 
-      // Generate AI explanation for the findings
-      const analysis = await AIService.explainLabReport(
-        order.testName,
-        results.map((r: any) => ({ name: r.parameter, value: r.value, unit: r.unit }))
-      );
-      order.aiExplanation = analysis.summary;
+      order.aiExplanation = undefined;
 
       await order.save();
 
       res.json({
         success: true,
-        message: 'Test results entered and saved.',
+        message: 'Test results entered and saved. No automated clinical interpretation was added.',
         data: order,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to enter lab results', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );
@@ -231,7 +263,7 @@ router.patch(
     try {
       const order = await LabOrder.findById(req.params.id);
       if (!order) {
-        res.status(404).json({ success: false, error: 'Lab order not found.' });
+        sendError(res, 404, ErrorCode.NOT_FOUND, 'Lab order not found.');
         return;
       }
 
@@ -239,6 +271,8 @@ router.patch(
       order.releasedAt = new Date();
       order.releasedBy = req.user!._id as mongoose.Types.ObjectId;
       await order.save();
+
+      emitToUser(String(order.patientId), 'lab:result:released', { orderId: order._id });
 
       await logAuditEvent({
         actorId: req.user!._id as mongoose.Types.ObjectId,
@@ -257,9 +291,53 @@ router.patch(
         data: order,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to release lab report', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );
+
+// GET /api/v1/lab-orders/:id/pdf - Download lab report as PDF
+router.get('/:id/pdf', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const order = await LabOrder.findById(req.params.id).populate('patientId', 'name email');
+    if (!order) {
+      sendError(res, 404, ErrorCode.NOT_FOUND, 'Lab order not found.');
+      return;
+    }
+    const isPatient = req.user!.role === 'patient';
+    if (isPatient && !order.isReleasedToPatient) {
+      sendError(res, 403, ErrorCode.FORBIDDEN, 'Report not released to patient yet.');
+      return;
+    }
+    const lines: string[] = [];
+    lines.push(`Test: ${order.testName}`);
+    lines.push(`Category: ${order.category}`);
+    lines.push(`Patient: ${(order.patientId as any)?.name || ''}`);
+    lines.push(`Status: ${order.sampleStatus}`);
+    lines.push(`Released: ${order.isReleasedToPatient ? 'Yes' : 'No'}`);
+    lines.push('');
+    if (order.isReleasedToPatient && order.results?.length) {
+      lines.push('Results:');
+      for (const r of order.results) {
+        lines.push(`- ${r.parameter}: ${r.value} ${r.unit || ''} (Ref: ${r.referenceRange || 'N/A'}) ${r.isAbnormal ? '[ABNORMAL]' : ''}`);
+      }
+    } else {
+      lines.push('Results are pending lab verification and release.');
+    }
+    if (order.aiExplanation) {
+      lines.push('');
+      lines.push('AI Explanation:');
+      lines.push(order.aiExplanation);
+    }
+    const buffer = await createPdfBuffer(`Lab Report - ${order.testName}`, lines);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="lab-report-${order._id}.pdf"`);
+    res.send(buffer);
+  } catch (err: any) {
+    logger.error('Lab PDF export failed', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
+  }
+});
 
 export default router;

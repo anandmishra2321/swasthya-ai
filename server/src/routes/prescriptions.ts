@@ -7,6 +7,8 @@ import { authenticate, AuthRequest } from '../middlewares/auth';
 import { requireRole } from '../middlewares/rbac';
 import { validateBody } from '../middlewares/validate';
 import { logAuditEvent } from '../services/auditService';
+import { sendError, ErrorCode } from '../utils/response';
+import { logger } from '../utils/logger';
 import mongoose from 'mongoose';
 
 const router = Router();
@@ -56,7 +58,8 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
       data: prescriptions,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to list prescriptions', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -120,7 +123,8 @@ router.post(
         data: prescription,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to create prescription', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );
@@ -134,7 +138,7 @@ router.patch(
     try {
       const prescription = await Prescription.findById(req.params.id);
       if (!prescription) {
-        res.status(404).json({ success: false, error: 'Prescription not found.' });
+        sendError(res, 404, ErrorCode.NOT_FOUND, 'Prescription not found.');
         return;
       }
 
@@ -159,9 +163,58 @@ router.patch(
         data: prescription,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to dispense prescription', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );
+
+import { createPdfBuffer } from '../utils/pdf';
+
+// GET /api/v1/prescriptions/:id/pdf - Download prescription as PDF
+router.get('/:id/pdf', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const rx = await Prescription.findById(req.params.id)
+      .populate('patientId', 'name email phone')
+      .populate('doctorId', 'name email role')
+      .populate('organizationId', 'name type address phone');
+    if (!rx) {
+      sendError(res, 404, ErrorCode.NOT_FOUND, 'Prescription not found.');
+      return;
+    }
+    const isPatient = req.user!.role === 'patient';
+    if (isPatient && String(rx.patientId?._id || rx.patientId) !== String(req.user!._id)) {
+      sendError(res, 403, ErrorCode.FORBIDDEN, 'Access denied.');
+      return;
+    }
+    const lines: string[] = [];
+    lines.push(`Diagnosis: ${rx.diagnosis}`);
+    lines.push(`Doctor: ${(rx.doctorId as any)?.name || ''}`);
+    lines.push(`Patient: ${(rx.patientId as any)?.name || ''}`);
+    lines.push(`Organization: ${(rx.organizationId as any)?.name || ''}`);
+    lines.push(`Status: ${rx.status}`);
+    lines.push('');
+    lines.push('Medicines:');
+    for (const m of rx.medicines) {
+      lines.push(`- ${m.name} (${m.genericName || ''}) | ${m.dosage} | ${m.frequency} | ${m.duration} | ${m.instructions || ''}`);
+    }
+    if (rx.advice) {
+      lines.push('');
+      lines.push(`Advice: ${rx.advice}`);
+    }
+    if (rx.followUpDate) lines.push(`Follow-up: ${rx.followUpDate}`);
+    if (rx.allergyWarningTriggered && rx.allergyDetails) {
+      lines.push('');
+      lines.push(`⚠ ${rx.allergyDetails}`);
+    }
+    const buffer = await createPdfBuffer(`Prescription - ${rx.diagnosis}`, lines);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="prescription-${rx._id}.pdf"`);
+    res.send(buffer);
+  } catch (err: any) {
+    logger.error('Prescription PDF export failed', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
+  }
+});
 
 export default router;

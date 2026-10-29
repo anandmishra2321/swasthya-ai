@@ -1,0 +1,970 @@
+--- page 1 ---
+
+SWASTHYA AI
+ Complete Healthcare Ecosystem
+ Master Feature Blueprint
+ Role-wise features  Sub-features  Detailed workflows  AI capabilities  Security 
+ Implementation priorities
+Vision
+Connect patients, hospitals, doctors, clinics, pharmacies, diagnostic labs and
+emergency services through one location-aware healthcare platform.
+Primary focus
+Healthcare accessibility, verified facility information, appointment coordination,
+patient follow-up and practical AI assistance.
+Context
+Designed as a proposed concept aligned with the Smart Rewa 2030 healthcare
+theme. Live availability depends on participating providers and verified data
+feeds.
+Prepared as a planning document. Feature availability, clinical workflows, legal requirements and integrations
+must be validated before production use.
+
+--- page 2 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 2
+How to Use This Blueprint
+This document captures the current feature vision in a structured hierarchy. Each role includes major features,
+sub-features and detailed capabilities. It is a product-planning blueprint, not a claim that integrations or live data sources
+already exist.
+Role model and authentication principle
+Users should not need to manually choose a role at every login. After secure email authentication, the backend
+checks the account's approved category and affiliations, then opens the correct dashboard. A single person
+may have multiple approved workspaces. Email text alone must never grant doctor, hospital or administrator
+privileges.
+Contents
+  Part A — Role-wise feature catalogue (23 roles)
+  1. Patient
+  2. Hospital Doctor
+  3. Hospital Administrator / Owner
+  4. Hospital Receptionist
+  5. Hospital Staff
+  6. Private Doctor
+  7. Private Clinic Owner / Administrator
+  8. Clinic Receptionist
+  9. Homeopathy Doctor / Practitioner
+  10. Homeopathy Clinic Owner / Administrator
+  11. Medical Store Owner
+  12. Medical Store Staff / Pharmacist
+  13. Platform Super Admin
+  14. Verification Administrator
+  15. Ambulance / Emergency Service Provider
+  16. Diagnostic Lab Administrator
+  17. Lab Technician
+  18. Nurse
+  19. Hospital Bed Manager
+  20. Doctor's Assistant
+  21. Diagnostic Lab Patient
+  22. Healthcare Support Agent
+  23. Public Health Administrator
+  Part B — Cross-platform capabilities
+  Part C — Priorities, dependencies and safety principles
+ 
+Legend
+Feature = major capability. Sub-feature = user-facing workflow or module. Detailed capabilities = the individual actions,
+fields, controls and checks needed to make the sub-feature useful.
+
+--- page 3 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 3
+PART A — ROLE-WISE FEATURE CATALOGUE
+This section defines 23 role types. Related roles may share dashboard components, but their data access and actions
+must remain permission-controlled.
+1. Patient
+Patient apni healthcare journey, records, appointments aur care follow-ups ek jagah manage kar sake.
+Account, Profile & Preferences
+Email signup/login
+  Email verification/OTP or secure verification link
+  Password recovery, logout, active-session management
+  Verified account ke basis par automatic Patient Dashboard routing
+ Personal profile
+  Name, date of birth, contact details, address, preferred language
+  Profile photo and accessibility preferences
+  Emergency contact and optional caregiver details
+ Family profiles
+  Authorized dependent profiles
+  Guardian/representative access where legally appropriate
+  Profile-level consent and access separation
+ 
+Personal Medical Record
+Medical history
+  Known conditions, allergies, surgeries, relevant family history
+  Current medicines and clinician-entered diagnoses
+  Vaccination and patient-entered health measurements, where relevant
+ Documents
+  Upload PDF/image reports and previous prescriptions
+  Organize documents by date, category and provider
+  Download/share selected records with authorized clinician
+ Health timeline
+  Consultations, prescriptions, reports and follow-ups in chronological order
+  Show source and date for imported or manually entered information
+  Allow correction requests for inaccurate demographic/record details
+ 
+Healthcare Finder & Maps
+Nearby facilities
+  Hospitals, private clinics, doctors, homeopathy practitioners, labs, medical stores and emergency providers
+  GPS permission with manual location search fallback
+  Map/list views, distance, directions, contact and operating hours
+ Filters and comparison
+
+--- page 4 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 4
+ Specialty, facility type, public/private, open-now, available service
+  Verified profile badge and last-updated information
+  Compare distance, listed services and appointment options
+ Beds and availability
+  Show supported bed categories and hospital-reported availability
+  Display last-updated timestamp and data freshness label
+  Call hospital to confirm; never present stale/unverified values as guaranteed
+ 
+Appointments & Referrals
+Booking
+  Search doctor/clinic, view slots, book, cancel or reschedule
+  Booking status, confirmation and reminder preferences
+  Walk-in/queue details only when supplied by provider
+ Referral journey
+  View referral details and receiving provider
+  Share authorized documents with referral
+  Track requested, booked, completed or closed status
+ 
+AI Health Assistant
+Health information
+  Hindi/English general health education and FAQs
+  Clarifying questions about user-reported symptoms
+  Preventive-care and appointment-preparation guidance
+ Safe assistance
+  Urgency guidance for warning signs, without claiming a definitive diagnosis
+  Escalate emergencies to urgent professional care; do not delay with lengthy chat
+  Show AI limitations and encourage clinician review for medical decisions
+ Conversation controls
+  Conversation history and clear/delete controls where supported
+  Optional use of patient-authorized profile context
+  Feedback/report incorrect answer
+ 
+Medical Report Analyzer
+Upload and extraction
+  PDF/image upload, OCR and text extraction
+  Extract test name, value, unit, reference range and report date where legible
+  Show extracted values beside source and allow correction
+ Explanation and comparison
+  Explain terms in plain language and Hindi
+  Highlight values outside report-provided reference ranges
+  Compare dated reports only when units/tests are comparable; avoid unsupported diagnosis
+ Sharing
+
+--- page 5 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 5
+ Create summary for patient or clinician review
+  Download/share with explicit authorization
+  Processing status and error handling for unreadable files
+ 
+Medicine & Follow-up
+Medication list
+  Record prescribed medicine, instructions and duration as entered by clinician
+  Reminders based on patient-confirmed schedule
+  Refill/follow-up reminders and adherence history if enabled
+ Prescription access
+  View/download prescriptions and prescription date
+  Share with authorized provider or pharmacy where supported
+  Flag recorded allergy conflict for professional review
+ Notifications
+  Appointment, report, follow-up and medicine reminders
+  In-app/email/SMS channels only where configured
+  Privacy-conscious notification text and user-controlled preferences
+ 
+Privacy, Feedback & Support
+Consent and sharing
+  Review who has access to records
+  Grant/revoke supported sharing permissions
+  Access history and consent history
+ Feedback and support
+  Report incorrect facility details or listing
+  Submit service feedback and support tickets
+  Track complaint/ticket status
+ 
+2. Hospital Doctor
+Hospital-affiliated clinician ke liye clinical, appointment aur follow-up workflow.
+Professional Profile & Affiliation
+Credentials
+  Qualification, specialty, registration details and verification status
+  Department, consultation hours and hospital affiliation
+  Availability and approved profile details
+ 
+Patient Workspace
+Registration and search
+  Create doctor-assisted patient entry where permitted
+  Search/link existing patient and flag likely duplicates
+  Verify contact details and record patient consent
+ 
+--- page 6 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 6
+Clinical context
+  View authorized medical history, allergies, medicines, previous notes and reports
+  Display source/date of information
+  Access only assigned/authorized patients
+ 
+Consultation & Clinical Documentation
+Visit record
+  Symptoms, history, examination findings and clinical assessment
+  Doctor-entered diagnosis, plan and follow-up date
+  Save draft, finalize, amend with audit trail
+ AI documentation helper
+  Draft visit summary from clinician-provided notes
+  Summarize authorized history and uploaded report text
+  Clinician reviews/edits all AI-generated content before saving
+ 
+Prescription Management
+Digital prescription
+  Medicine, strength/form, dosage, frequency, duration and instructions as prescribed
+  Date, prescriber identity and secure signature/authentication where supported
+  Revision/cancellation history; downloadable copy
+ Safety checks
+  Compare against recorded allergies and reliable interaction data where integrated
+  Warnings are advisory and require clinical judgment
+  No automatic prescribing or dose changes by AI
+ 
+Appointments & Follow-ups
+Calendar
+  Daily/weekly view, slots, cancellations, rescheduling and walk-ins
+  Queue status and waiting-time estimate where data exists
+  No-show tracking and follow-up task list
+ Continuity of care
+  Set follow-up schedule and patient reminders
+  Track pending/completed follow-ups
+  Referral creation and referral summary
+ 
+Hospital Coordination & Analytics
+Coordination
+  Department referral, admission/discharge coordination and handover notes
+  View bed status only if authorized and data is available
+  Share clinical documents only with authorized recipients
+ Analytics
+  Consultation volume, upcoming visits, completion and cancellation rates
+ 
+--- page 7 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 7
+ Pending follow-ups and workload trends
+  No unnecessary exposure of identifiable patient data in aggregate reports
+ 
+3. Hospital Administrator / Owner
+Hospital profile, staff, operations, appointment coordination aur bed-data management.
+Hospital Registration & Profile
+Facility details
+  Name, address, GPS location, public/private category and contact details
+  Departments, services, operating hours and emergency facilities
+  Verification documents and profile review status
+ 
+Doctor & Staff Management
+Doctor onboarding
+  Invite/add doctor, collect required profile details and verify affiliation
+  Assign department, schedule and workspace permissions
+  Deactivate/revoke affiliation when appropriate
+ Staff accounts
+  Create receptionist, bed-manager and operational staff accounts
+  Assign least-privilege permissions by job
+  Review access and activity logs
+ 
+Bed & Capacity Management
+Inventory
+  Total beds and supported categories such as general, ICU and emergency
+  Occupied, available, reserved, cleaning and maintenance states as applicable
+  Admission/discharge-driven updates and manual correction
+ Live availability
+  Timestamp each change and record who updated it
+  Show freshness status and alert when data is stale
+  Keep change history and reconcile conflicting updates
+ 
+Appointments & Operations
+Scheduling
+  Hospital-wide calendar, doctor/department slots and waitlist
+  Appointment cancellation and queue overview
+  Operational announcements and service availability
+ Admissions and discharge
+  Admission/discharge status and bed assignment workflow where supported
+  Coordinate staff tasks and patient movement
+  Keep audit trail and avoid duplicating the official hospital record without integration
+ 
+--- page 8 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 8
+Analytics, Security & Audit
+Operations analytics
+  Bed occupancy, appointment demand, department-level visit trends
+  Waiting-time and cancellation trends
+  Export aggregate operational reports
+ Governance
+  Profile edits, bed updates and account changes logged
+  Staff permissions review and suspicious activity alerts
+  Administrative access does not imply unrestricted clinical-record access
+ 
+4. Hospital Receptionist
+Front-desk workflows, appointment check-in aur patient coordination.
+Patient Intake
+Registration/search
+  Create basic patient entry and search existing profiles
+  Detect potential duplicates and confirm identity according to policy
+  Collect only necessary information and record consent where required
+ 
+Appointment Desk
+Booking changes
+  Book, confirm, cancel and reschedule appointments
+  View doctor schedules and approved availability
+  Send confirmation/reminders through configured channels
+ Queue
+  Check-in, token number and queue position
+  Waiting-time estimate based on current queue data
+  Mark arrival/no-show and notify relevant desk
+ 
+Navigation & Reports
+Patient coordination
+  Direct patient to department, clinic or service
+  Provide facility contact and operational information
+  Escalate urgent concerns to appropriate clinical/emergency staff
+ Daily desk report
+  Appointment counts, walk-ins, cancellations and pending check-ins
+  No-show summary and operational notes
+  Access limited to reception needs; no unrestricted clinical notes
+ 
+--- page 9 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 9
+5. Hospital Staff
+Role-specific operational staff workspace; exact permissions depend on assignment.
+Task & Shift Management
+Work queue
+  Assigned tasks, due dates, status and handover notes
+  Shift schedule and availability requests
+  Notifications for assigned work
+ Department-specific access
+  Admission/discharge desk, billing, patient coordination or facilities maintenance
+  Access only records needed for assigned duties
+  Supervisor escalation and task audit trail
+ 
+6. Private Doctor
+Independent practitioner ke liye clinic-lite management aur clinical workspace.
+Professional & Clinic Profile
+Listing
+  Verified credentials, specialty, address/GPS, fees and consultation hours
+  Appointment slots and temporary unavailability
+  Contact, directions and profile correction workflow
+ 
+Patients & Consultation
+Patient records
+  Register/search/link patient and avoid duplicates
+  Record consent, history, allergies and relevant documents
+  Visit timeline and authorized sharing
+ Clinical notes
+  Symptoms, examination, assessment and plan
+  AI-assisted draft summaries with clinician review
+  Referral and follow-up records
+ 
+Prescription & Calendar
+Prescription
+  Clinician-entered medicine instructions and secure prescription record
+  Download/share and revision history
+  Allergy warnings when reliable data is available
+ Clinic workflow
+  Appointments, walk-ins, queue, cancellations and follow-ups
+  Optional assistant/receptionist accounts
+  Daily consultation and appointment analytics
+ 
+--- page 10 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 10
+Optional Services
+Remote consultation
+  Video/voice consultation only when integrated and consented
+  Session link, appointment status and post-visit notes
+  Do not claim a teleconsultation is available until service is configured
+ Payments
+  Optional fee/payment integration and receipt status
+  Refund/cancellation rules if supported
+  Secure transaction references; do not store raw card data
+ 
+7. Private Clinic Owner / Administrator
+Independent clinic operations and team coordination.
+Clinic Profile & Practitioners
+Facility setup
+  Clinic name, location, services, fees and hours
+  Add/invite practitioners and verify clinic affiliation
+  Manage clinic listing and availability
+ Team
+  Receptionist/assistant accounts and least-privilege permissions
+  Schedules, rooms and shared appointment calendar
+  Deactivate access when staff leave
+ 
+Operations & Analytics
+Scheduling
+  Appointments, waitlist, queue, cancellations and no-shows
+  Practitioner-specific slots and clinic closure notices
+  Patient intake and follow-up task coordination
+ Reports
+  Visit counts, appointment completion and pending follow-ups
+  Service demand trends and profile feedback
+  Activity log for important administrative changes
+ 
+8. Clinic Receptionist
+Private clinic front desk and scheduling.
+Reception workflow
+Patient intake
+  Register/search patient, update contact details and flag duplicates
+  Collect minimum required information
+ 
+--- page 11 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 11
+ Escalate urgent requests to clinician
+ Appointments
+  Book/reschedule/cancel, check-in and manage queue
+  View practitioner schedules and availability
+  Send configured appointment reminders
+ Daily operations
+  Waiting-time estimate, no-show tracking and daily summary
+  Provide clinic directions and service information
+  No unrestricted access to diagnosis or private clinical notes
+ 
+9. Homeopathy Doctor / Practitioner
+Homeopathy practitioner workspace with separate professional identity and records.
+Professional Profile
+Credentials
+  Qualification, applicable registration details and verification status
+  Clinic affiliation, timings, fees and location
+  Clearly label practice type and verified status
+ 
+Patient & Consultation Management
+Patient record
+  Register/search/link patient, medical history, allergies and current medicines
+  Previous consultations and patient-uploaded reports
+  Consent-based record sharing
+ Consultation notes
+  Patient-reported symptoms and relevant history
+  Practitioner-entered assessment and documented plan
+  Follow-up schedule and referral notes
+ 
+Documentation & AI
+Records
+  Practitioner-entered prescription/consultation record where legally appropriate
+  Downloadable summary and visit timeline
+  Revision history
+ AI helper
+  Draft notes and summarize authorized reports
+  Explain general medical terminology
+  Do not generate unsupported treatment claims or present homeopathy as emergency-care replacement
+ 
+--- page 12 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 12
+10. Homeopathy Clinic Owner / Administrator
+Homeopathy clinic listings, staff, appointments and operations.
+Clinic Management
+Profile and practitioners
+  Clinic location, hours, contact and service information
+  Invite practitioners and track verification
+  Manage clinic listing and practitioner schedules
+ Operations
+  Appointments, reception access, queues and follow-up lists
+  Clinic announcements and closure status
+  Operational analytics and audit logs
+ 
+11. Medical Store Owner
+Pharmacy/medical store profile, inventory and medicine availability management.
+Store Profile & Compliance
+Registration
+  Store details, address/GPS, hours, contacts and applicable licence information
+  Verification status and document expiry reminders where applicable
+  Pickup/delivery availability only if offered
+ 
+Medicine Catalogue & Inventory
+Product data
+  Medicine name, brand/generic name, strength and dosage form
+  Manufacturer, batch, expiry date and stock quantity
+  Product category and searchable catalogue
+ Stock controls
+  Stock in/out and adjustments with reason
+  Low-stock and near-expiry alerts
+  Batch-level history, supplier and purchase references
+ Availability freshness
+  Timestamp stock updates and show last sync
+  Mark availability unknown/stale when not recently verified
+  Reconcile online requests with actual dispensing inventory
+ 
+Requests & Dispensing Workflow
+Customer requests
+  Medicine availability enquiry and order request status
+  Prescription submission where supported and legally appropriate
+  Pickup/delivery status where service exists
+ 
+--- page 13 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 13
+Prescription controls
+  Qualified pharmacist review where required
+  Check prescription completeness and applicable restrictions
+  Record dispensing status according to legal/operational requirements
+ 
+Analytics & Staff
+Store analytics
+  Stock movement, near-expiry products and request trends
+  Inventory value if configured
+  Staff accounts and transaction audit
+ 
+12. Medical Store Staff / Pharmacist
+Assigned inventory and dispensing workflow with professional scope controls.
+Inventory Tasks
+Stock operations
+  Search catalogue, record stock updates and expiry/batch details
+  Flag discrepancies and low-stock products
+  Maintain handover and change history
+ 
+Prescription & Customer Workflow
+Prescription review
+  Review submitted prescription within professional scope
+  Escalate unclear/incomplete requests to authorized pharmacist/owner
+  Record dispensing workflow and relevant required checks
+ Customer requests
+  Respond to availability enquiries
+  Update order/request status and pickup information
+  Protect customer and prescription information
+ 
+13. Platform Super Admin
+Platform-wide configuration, service quality and account governance.
+Platform Overview
+Operational overview
+  Counts of registered patients, providers, facilities and active accounts
+  System/service status and verification queue
+  Aggregate metrics without unnecessary clinical detail
+ 
+Account & Directory Administration
+Account controls
+
+--- page 14 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 14
+ Suspend/reactivate accounts under defined policy
+  Review reported or duplicate profiles
+  Manage platform-level settings and access reviews
+ Directory quality
+  Review facility correction reports
+  Manage service categories and listing status
+  Track profile changes and verification states
+ 
+Configuration & Audit
+Platform configuration
+  Languages, notification templates, search filters and feature flags
+  Service announcements and supported integrations
+  Configuration change history
+ Security
+  Admin action logs, permission changes and incident review
+  Least-privilege access and separation of duties
+  No unrestricted clinical-record access by default
+ 
+14. Verification Administrator
+Provider and facility credential review, with auditable decisions.
+Verification Queue
+Applications
+  Doctor, hospital, clinic, homeopathy practitioner, pharmacy, lab and emergency provider applications
+  Pending/approved/rejected/needs-information states
+  Assign reviewer and set review deadline
+ 
+Document Review
+Credential checks
+  Review qualification, applicable registration/licence and facility documents
+  Record source, review date and outcome
+  Request missing documents and track resubmission
+ Renewals & Reports
+  Expiry reminders where applicable
+  Re-verification and reported-profile review
+  Decision history, reviewer identity and audit trail
+ 
+15. Ambulance / Emergency Service Provider
+Emergency provider profile, fleet and dispatch workflows where operationally integrated.
+
+--- page 15 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 15
+Provider & Fleet
+Service profile
+  Operating area, hours, contact, vehicle types and supported capabilities
+  Verification status and coverage area
+  Vehicle/crew assignment and operational status
+ Fleet operations
+  Available/busy/out-of-service state
+  Vehicle maintenance status
+  GPS tracking only with actual tracking integration and authorization
+ 
+Request & Dispatch
+Emergency request
+  Capture requester location with permission and contact information
+  Request status and dispatch assignment
+  ETA only when supported by reliable operational data
+ Operations analytics
+  Dispatch history and completion status
+  Response-time trends where measured
+  Escalation and audit trail
+ 
+16. Diagnostic Lab Administrator
+Laboratory profile, test catalogue, bookings and report-release workflow.
+Lab Profile & Catalogue
+Facility
+  Address, location, hours, contact and applicable accreditation/licence information
+  Sample collection options and service coverage
+  Profile verification status
+ Tests
+  Test name/category, preparation instructions and price if configured
+  Booking slots and sample collection scheduling
+  Expected report timeframe as estimate, not guarantee
+ 
+Lab Operations
+Bookings and samples
+  Patient/test booking, sample ID and status tracking
+  Collected, processing, rejected or completed states as applicable
+  Reason and timestamps for status changes
+ Reports
+  Result entry by authorized personnel
+  Review/approval workflow before release
+ 
+--- page 16 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 16
+ Secure report publication and patient notification
+ 
+Quality & Analytics
+Quality
+  Quality-control workflow and audit trail where supported
+  Processing-time and pending-report metrics
+  Correction/version history for released reports
+ 
+17. Lab Technician
+Authorized sample processing and result-entry workflow.
+Work Queue & Samples
+Sample handling
+  Assigned tests, sample identifiers and collection/receipt status
+  Record processing timestamps and rejection reasons
+  Flag sample mismatch or quality issue
+ 
+Results & Review
+Result entry
+  Enter test results and units within authorization
+  Flag out-of-range values based on configured reference data
+  Submit for authorized review; do not independently release if approval is required
+ Quality & Audit
+  Quality-control records where applicable
+  Work queue and pending tasks
+  Result amendment history and supervisor escalation
+ 
+18. Nurse
+Patient care documentation, monitoring and handover within professional scope.
+Assigned Patient Care
+Observations
+  Record vital signs and observations where trained/authorized
+  View relevant allergies/medicines and care instructions
+  Timestamp entries and identify author
+ Care tasks
+  Assigned care checklist and due times
+  Escalate concerning observations to responsible clinician
+  Shift handover and pending task summary
+ 
+--- page 17 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 17
+Clinical Coordination
+Records
+  Nursing notes and patient monitoring records
+  Admission/discharge support within assigned duties
+  Medication administration records only when authorized and compliant
+ Alerts
+  Overdue tasks and missing required observations
+  Critical-value notifications from supported systems
+  Audit trail for record updates
+ 
+19. Hospital Bed Manager
+Dedicated capacity dashboard for timely and trustworthy bed status.
+Bed Inventory
+Bed records
+  Unique bed identifier, ward/department and category
+  Available, occupied, reserved, cleaning or maintenance states as applicable
+  Record transitions and responsible staff member
+ 
+Availability Updates
+Live status
+  Update on admission/discharge or authorized manual change
+  Timestamp and freshness indicators
+  Stale-data reminders and reconciliation queue
+ Capacity reporting
+  Total/available/occupied counts by category
+  Low-capacity alerts to authorized operations staff
+  Occupancy trends and change history
+ 
+20. Doctor's Assistant
+Administrative support for a clinician, constrained by explicit permissions.
+Schedule & Communication
+Calendar
+  Manage appointments, reminders, reschedules and follow-up slots
+  Prepare daily schedule and pending-task list
+  Coordinate referrals and document requests
+ 
+Patient Administration
+Intake
+  Check-in and basic contact updates
+ 
+--- page 18 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 18
+ Upload documents only when authorized
+  Route patient questions to clinician
+ Permissions
+  No independent diagnosis or unauthorized prescription changes
+  Clinical record access limited to assigned duties
+  Action history and secure account management
+ 
+21. Diagnostic Lab Patient
+Patient-facing test booking and report access.
+Lab Discovery & Booking
+Search
+  Nearby labs, services, opening hours and location
+  Test catalogue and preparation instructions
+  Compare available booking slots and prices where provided
+ Booking status
+  Book/reschedule/cancel where supported
+  Sample collection status and notifications
+  Display estimates with clear caveats
+ 
+Reports & Sharing
+Results
+  Securely view/download released reports
+  Report history and notification preferences
+  AI explanation of report terms and values, not a diagnosis
+ Consent
+  Share selected reports with chosen clinician
+  Track share/revoke actions where supported
+  Report incorrect data through lab correction workflow
+ 
+22. Healthcare Support Agent
+Technical and administrative user support without broad clinical access.
+Ticket Management
+Intake
+  Create/categorize tickets, set priority and assign agent
+  Track status, SLA and response history
+  Escalate security, payment or provider-verification issues
+ Knowledge base
+  Approved help articles and FAQs
+ 
+--- page 19 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 19
+ Reusable response templates
+  Resolution tagging and quality review
+ 
+Privacy & Reporting
+Data minimization
+  Access only data needed for the ticket
+  Mask sensitive information where possible
+  Record access and escalation history
+ Analytics
+  Ticket volume, resolution time and common issues
+  User satisfaction feedback
+  Recurring issue reports
+ 
+23. Public Health Administrator
+Regional planning using aggregated, de-identified information.
+Regional Overview
+Facility map
+  Distribution of registered hospitals, clinics, labs and services
+  Facility coverage and reported service availability
+  Data freshness and source visibility
+ Aggregated trends
+  Appointment demand and capacity trends
+  Healthcare access gaps and campaign participation
+  No general access to identifiable patient records
+ 
+Planning & Governance
+Reports
+  Aggregate reports and configurable date ranges
+  Export controls and minimum-group thresholds where appropriate
+  Data quality checks and documented limitations
+ Public health campaigns
+  Plan awareness campaigns and track aggregate reach
+  Publish verified health information
+  Audit access and report generation
+ 
+--- page 20 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 20
+PART B — CROSS-PLATFORM CAPABILITIES
+These capabilities support multiple roles and keep the ecosystem consistent. They should be implemented as shared
+services rather than duplicated independently in every dashboard.
+1. Identity, Login & Account Security
+Email authentication
+  Verified email signup/login and recovery
+  Automatic dashboard routing from approved account and affiliation records
+  Secure sessions, logout, account recovery and suspicious-login monitoring
+ 
+Workspace access
+  One person may have multiple approved affiliations
+  Switch between authorized workspaces after login when needed
+  Server-side permission checks on every protected action
+ 
+Account safety
+  Least-privilege permissions, session expiry and access logs
+  Credential verification for healthcare professionals and facilities
+  Never trust an email string alone to grant a privileged dashboard
+ 
+2. Location & Healthcare Discovery
+Location handling
+  Ask permission before GPS use
+  Manual location/address search if permission is declined
+  Use location only for the stated discovery purpose and provide controls
+ 
+Directory quality
+  Verified badges, source and last-updated timestamps
+  Report incorrect location/contact/hours
+  Clearly distinguish listed services from confirmed live availability
+ 
+3. Real-Time Data & Integrations
+Bed data
+  Hospital system integration or authorized staff updates
+  Timestamp, source, stale-data detection and reconciliation
+  No fabricated real-time numbers; offer call-to-confirm
+ 
+Doctor/clinic availability
+  Calendar integration or provider-managed slots
+  Prevent double booking where supported
+  Update status on cancellation, leave or schedule changes
+ 
+--- page 21 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 21
+Medicine inventory
+  Store inventory sync or owner/staff updates
+  Batch/expiry and stock freshness
+  Mark unavailable/unknown when data is stale
+ 
+Emergency services
+  Actual provider/dispatch integration required for live dispatch
+  ETA and vehicle tracking only when supplied by reliable system
+  Fallback to emergency contact/directions where integration is absent
+ 
+4. AI Safety & Governance
+AI response safeguards
+  Explain uncertainty and limitations
+  Urgent red flags direct users to emergency/professional care
+  No autonomous diagnosis, prescribing or treatment changes
+ 
+Clinical review
+  AI drafts remain drafts until authorized clinician review
+  Record source data and relevant timestamps
+  Provide correction/reporting flow for AI errors
+ 
+Privacy
+  Use only authorized data and minimum necessary context
+  Consent-aware sharing and access logs
+  Retention, deletion and export controls subject to applicable obligations
+ 
+5. Notifications & Communication
+Channels
+  In-app and email; SMS/other channels only when configured
+  Templates for appointments, follow-ups, reports and verification
+  User preferences, delivery status and notification history
+ 
+Privacy
+  Avoid revealing sensitive medical details in lock-screen notifications
+  Allow opt-out for non-essential notifications
+  Log critical operational alerts and escalation
+ 
+6. Audit, Reporting & Support
+Audit
+  Log sensitive record access and important changes
+  Record actor, timestamp, action and affected record
+ 
+--- page 22 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 22
+ Restrict audit visibility and protect logs from unauthorized editing
+ 
+Reporting
+  Role-specific operational metrics
+  Aggregate/de-identify public health reports
+  Export permissions and audit trail
+ 
+--- page 23 ---
+
+SWASTHYA AI  |  COMPLETE FEATURE BLUEPRINT
+Page 23
+PART C — IMPLEMENTATION PRIORITIES
+The complete feature catalogue is intentionally broad. For a credible working prototype, build a small number of
+end-to-end workflows first, then add AI and integrations in stages.
+Priority
+Scope
+Examples
+P0 — Core prototype
+Build first; required for a coherent
+working demo
+Email authentication; approved dashboard routing; patient and
+provider profiles; hospital/doctor directory; location search;
+appointment workflow; hospital-reported bed updates; patient
+registration; basic consent/access controls.
+P1 — Differentiators
+Add after core workflows work
+end-to-end
+AI health education assistant; report OCR/explanation; digital
+prescriptions; reminders/follow-ups; medical-store listings and
+stock updates; homeopathy directory; verification queue; lab
+booking/report workflow.
+P2 — Integrations/exp
+ansion
+Requires external partners,
+operational validation or additional
+build effort
+Live hospital-system integration; real-time ambulance dispatch;
+inventory integrations; teleconsultation; advanced regional
+analytics; multi-provider referral network; voice-first experience.
+Key Dependencies & Reality Checks
+  Real-time bed availability requires a hospital system integration or authorized staff updates, timestamps and a stale-data
+ policy. GPS alone cannot reveal available beds.
+ Real-time doctor slots require provider-managed schedules or calendar integration and safeguards against double booking.
+  Medical-store stock requires inventory integration or timely staff updates. Stale stock must be labelled unknown or
+ unverified.
+ Ambulance dispatch and live tracking require an actual service-provider integration and operational support; a screen alone
+ does not dispatch a vehicle.
+ AI-generated clinical notes, report explanations and summaries must be reviewable and should not be presented as
+ definitive diagnosis or autonomous prescribing.
+ Professional credentials, facility licences, privacy, consent, record retention and emergency workflows require validation
+ against applicable local rules before production deployment.
+ Use synthetic/demo patient data for hackathon demonstrations unless there is explicit authorization to use real patient
+ information.
+Recommended End-to-End Demo Journey
+  A patient signs in, grants location permission or searches manually, and finds nearby verified facilities.
+  The patient compares hospital information, sees bed data with a clear timestamp, and calls to confirm before travelling.
+  The patient books an available doctor slot or is registered by an authorized doctor/receptionist.
+  The doctor reviews authorized history, records a consultation and creates a prescription.
+  The patient receives appointment/medicine/follow-up reminders and can upload a lab report for an explainable summary.
+  Hospital staff update bed status; the patient-facing directory reflects the latest authorized update and labels stale data
+ clearly.
+Product Definition
+Swasthya AI is a proposed AI-enabled, location-aware healthcare coordination platform that connects patients
+and verified healthcare providers, supports appointment and follow-up workflows, and presents availability
+information with source and freshness transparency.
+End of document — Complete Feature Blueprint

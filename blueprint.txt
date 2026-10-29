@@ -1,0 +1,689 @@
+
+
+===== FILE: c:/Users/ayush/Downloads/1.pdf =====
+
+--- page 1 ---
+
+Swasthya AI — Master Project Transformation Prompt
+Page 1
+ SWASTHYA AI — ULTIMATE COMPLETE
+ PROJECT TRANSFORMATION PROMPT
+ Master prompt for an AI coding agent | Use with the existing project ZIP and feature blueprint PDF
+ Attach the existing Swasthya AI ZIP and feature blueprint PDF to your coding agent, then use this complete
+ master prompt.
+ Goal: preserve current functionality, implement all feasible specified features, replace fake production data
+ with real integrations, test workflows, and deliver a verified project ZIP.
+
+--- page 2 ---
+
+Swasthya AI — Master Project Transformation Prompt
+Page 2
+1. ROLE AND MISSION
+Act as a senior full-stack engineer, healthcare product architect, AI integration engineer, security engineer, QA engineer,
+and release manager. Transform the EXISTING Swasthya AI project into a polished, reliable, secure, real-world healthcare
+platform while preserving and improving current functionality.
+I will provide the existing Swasthya AI project ZIP and the Swasthya AI Complete Feature Blueprint PDF. Inspect both
+attachments before making changes. Treat the source code as the implementation baseline and the blueprint as the feature
+specification. Build on the existing project; do not discard it and generate an unrelated project from scratch. Do not stop at a
+plan, mockup, scaffold, or snippets. Implement changes in project files, run checks, fix errors, and package the result.
+2. AUDIT THE EXISTING PROJECT FIRST
+Inspect the repository structure, package files, environment configuration, routes, components, APIs, database models,
+authentication, and tests. Read the blueprint and map each requirement to the current implementation. Identify working,
+incomplete, duplicated, mocked, hardcoded, insecure, and broken parts. Record a baseline checklist so existing
+functionality is not accidentally removed. Determine the actual stack from the repository and reuse it where practical; do not
+migrate frameworks or databases without a clear technical reason. Then proceed autonomously through routine engineering
+decisions. Update dependent frontend, backend, database, tests, and documentation together.
+3. REPLACE DEMO DATA WITH REAL DATA
+Audit every dashboard, table, chart, statistic, notification, patient record, doctor, hospital, clinic, appointment, bed,
+pharmacy, laboratory, report, and AI response for hardcoded or fabricated values.
+Use persistent database records and real API responses in normal operation. Connect frontend screens to actual backend
+APIs. Remove fake arrays, placeholder counters, static success messages, and simulated production actions. Ensure
+operations persist; add loading, empty, error, retry, and permission-denied states. Charts must calculate from real records
+and define their metrics. Never silently fall back to fake data when a request fails. Retain synthetic seed data only in a
+separate, explicitly labelled development/demo mode; never mix demo and real records. Provide reproducible seed scripts
+and a safe local reset process. Never present invented patients, diagnoses, clinicians, appointments, facilities, or wearable
+readings as genuine.
+4. AUTHENTICATION, PROVISIONING AND RBAC
+Implement secure registration, login, logout, session handling, password reset where supported, and profile management.
+ Patients may register through a validated public patient-registration flow.
+ Establish the first Super Admin through a documented secure bootstrap, not public signup.
+ Hospital administrators/owners must be provisioned by the Super Admin or controlled organization onboarding.
+ Doctors, nurses, receptionists, and other organization users must be invited/provisioned by authorized organization
+admins.
+ Invitations must expire, be single-use, and bind to the intended email, role, and organization.
+ Verify email where configured. Never invent addresses or fake accounts.
+ Do not allow users to choose privileged roles during public registration.
+ Enforce backend authorization on every protected API, not just hidden frontend buttons.
+ Prevent cross-hospital, cross-clinic, cross-patient, and cross-tenant access.
+ Validate server-side inputs, hash passwords securely, expire tokens, rate-limit sensitive endpoints, and avoid leaking
+secrets or internal errors.
+ Keep keys in environment variables; commit only a safe .env.example.
+
+--- page 3 ---
+
+Swasthya AI — Master Project Transformation Prompt
+Page 3
+5. ADVANCED, FULLY FUNCTIONAL PATIENT PORTAL
+Build a complete patient product, not a decorative dashboard. Make it responsive, accessible, persistent, and connected to
+real backend workflows.
+A. Dashboard: upcoming appointments, recent reports, medication reminders, care tasks, notifications, and health activity
+based only on authorized records; useful empty states for new patients.
+B. Profile and family/caregiver management: personal/contact details, emergency contact, preferences, medical profile
+fields, and dependent profiles only with suitable authorization and consent.
+C. Medical records and timeline: authorized diagnoses, allergies, vaccinations, prescriptions, visits, lab reports, documents,
+dates, sources, authors, secure uploads/downloads, validation, and access controls. Do not imply incomplete records are
+complete.
+D. Healthcare finder: search configured hospitals, clinics, doctors, laboratories, pharmacies, and services using real data;
+useful filters and verified details where available. Clearly label unavailable providers/integrations.
+E. Appointments/referrals: book, reschedule, cancel, enforce availability and valid status transitions, prevent double
+booking, and show reminders/referral status. Never claim confirmation until the backend confirms it.
+F. AI assistant: real API-backed chat with configurable provider/model, appropriate access-controlled history, timeouts, rate
+limits, safe errors, and honest unavailability states. No fake AI answers. Provide general information, not definitive diagnosis
+or emergency replacement.
+G. Report analyzer: real upload/extraction where supported; show values, units, dates, supplied reference ranges, and
+uncertainty. Distinguish extraction from clinician interpretation; never fabricate lab values.
+H. Prescriptions/medication: authorized prescriptions and instructions, configurable reminders and adherence tracking
+where supported. Never independently prescribe, change doses, or advise stopping prescribed treatment.
+I. Notifications/support: persisted notifications and read/unread state; support tickets with status tracking. Do not claim a
+message was sent without delivery confirmation.
+J. Privacy/consent: explain and manage permitted data sharing, show access where supported, and enforce
+consent/revocation server-side.
+6. SMARTWATCH AND WEARABLE MONITORING CENTER
+Implement a Wearables / Watch & Health Monitoring Center. Be honest: a web app cannot automatically read every
+smartwatch. Use supported integrations and explain device, permission, companion-app, and API requirements.
+Provide a connect-device screen; connection states (connected, syncing, disconnected, permission denied, authentication
+required, unavailable); last sync; source/provider; errors; and only metrics genuinely supplied by the selected integration,
+such as heart rate, steps, sleep, SpO2, and activity. Each reading must show source, timestamp, units, and data
+quality/context when available. Include history/trends, configurable goals, disconnect/revoke controls, and applicable data
+deletion. Never show invented live values or fake connection states.
+Integration strategy:
+ Web Bluetooth only for compatible browsers/devices exposing required services with user permission.
+ Android Health Connect requires an appropriate companion app or supported bridge; do not claim a normal browser can
+directly read it.
+ Apple Health may require an iOS companion app or approved bridge.
+ Use official provider APIs only with configured authorization, scopes, credentials, and access.
+ Manual entries must be labelled manual, not wearable-synced.
+ Demo readings are allowed only in clearly labelled demo/development mode.
+Ingestion must validate units, timestamps, ownership, source, and schema; normalize units safely; deduplicate repeated
+sync events; be idempotent; handle delayed, missing, out-of-order, and duplicate records; secure provider tokens; and test
+permission denial, disconnection, invalid units/timestamps, duplicates, partial sync, and API failure. Clearly disclose when
+APIs, hardware, companion apps, or approvals are unavailable.
+
+--- page 4 ---
+
+Swasthya AI — Master Project Transformation Prompt
+Page 4
+AI may summarize recorded trends and help prepare clinician questions. Distinguish measurements from estimates, manual
+data, and AI summaries. Do not diagnose or infer a clinical stress/emergency status from a single metric.
+7. ADDITIONAL PATIENT FEATURES
+Where compatible with the blueprint and codebase, implement: unified health timeline; personal wellness goals based on
+actual records; appointment preparation notes that patients can optionally share with consent; follow-up center for reports,
+appointments, reminders, and clinician instructions; secure information-sharing center with scope, recipient, expiry where
+supported, audit trail and revocation; data-quality/sync center; accessibility, responsive layouts, keyboard navigation,
+readable contrast, and appropriate language support; transparent privacy controls.
+8. ADVANCED UI/UX
+Create a cohesive, modern, professional healthcare interface while retaining useful current functionality. Use a consistent
+design system for typography, spacing, colors, controls, forms, tables, dialogs, alerts, and navigation. Support
+desktop/tablet/mobile. Use role-aware navigation and dashboards, accessible charts based on real data, validated forms,
+clear errors, and success states only after server confirmation. Add loading/skeleton, empty, no-results, retry, and
+network-error states. Avoid dead buttons, placeholder links, fake progress, decorative-only controls, and pages inaccessible
+from navigation. Keep the experience consistent across patient, provider, hospital, clinic, lab, pharmacy, emergency,
+support, and admin roles. Never sacrifice correctness or accessibility for visual effects.
+9. ROLE-SPECIFIC WORKFLOWS
+Explicitly account for all applicable roles in the supplied blueprint:
+1. Patient
+2. Hospital Doctor
+3. Hospital Admin/Owner
+4. Hospital Receptionist
+5. Hospital Staff
+6. Private Doctor
+7. Private Clinic Owner/Admin
+8. Clinic Receptionist
+9. Homeopathy Doctor
+10. Homeopathy Clinic Owner/Admin
+11. Medical Store Owner
+12. Pharmacy Staff
+13. Super Admin
+14. Verification Admin
+15. Ambulance/Emergency Provider
+16. Lab Admin
+17. Lab Technician
+18. Nurse
+19. Bed Manager
+20. Doctor Assistant
+21. Diagnostic Lab Patient
+22. Support Agent
+23. Public Health Admin
+
+--- page 5 ---
+
+Swasthya AI — Master Project Transformation Prompt
+Page 5
+For each, define dashboard/navigation, permitted records/actions, backend endpoints and authorization, tenant boundaries,
+verification requirements, notifications/workflows, audit events, and allowed/denied-access tests. Do not grant all roles the
+same permissions or rely on frontend checks alone. Follow the blueprint; document ambiguities rather than silently inventing
+policy.
+10. REAL-TIME AND EXTERNAL INTEGRATIONS
+Inventory AI, email, SMS/OTP, maps, payment if applicable, health-data providers, file storage, and other external services.
+Use real provider APIs/SDKs and documented environment variables. Implement timeouts, safe retries, error handling, and
+logs that exclude secrets and sensitive health data. Missing credentials must result in an explicit setup message and
+unavailable state. Never claim a message, payment, AI response, booking, or sync succeeded without confirmation. Avoid
+unsafe retries of non-idempotent actions. Document scopes, callback URLs, and setup. Keep local development usable
+when optional services are missing, but label them honestly. Never invent credentials, approval status, or provider
+responses.
+11. SECURITY, PRIVACY AND CLINICAL SAFETY
+Enforce authentication and server-side authorization on every protected endpoint. Validate inputs and use safe database
+queries and file handling. Protect against injection, broken access control, insecure direct object references, CSRF where
+applicable, XSS, and unsafe uploads. Use secure password hashing, token expiry, rate limiting, least privilege, tenant
+isolation, and safe errors. Store secrets securely and avoid logging passwords, tokens, medical records, or unnecessary
+personal data. Audit sensitive actions with safeguards. Use HTTPS in deployment and narrowly configure CORS. Document
+backups, retention, deletion, and incident handling. Collect only necessary data and obtain consent where needed. Label AI
+content and limitations. Do not present the app as a substitute for qualified medical care; for emergencies, direct users to
+local emergency services. Do not claim regulatory compliance without independent verification.
+12. TESTING AND QUALITY GATES
+Create and run automated tests where the environment permits. Cover registration/login/logout/session expiry, role
+provisioning, cross-user and cross-organization access denial, patient profile/record controls, appointment availability
+conflicts/rescheduling/cancellation, persistence/migrations, validation/error states, AI success/timeouts/missing credentials,
+notifications, upload validation, wearable ingestion/deduplication/idempotency/permissions/invalid units and
+timestamps/stale data/disconnection, and separation of demo from real records. Run frontend production build, lint/type
+checks, backend tests, and critical end-to-end flows where possible. Fix failures caused by changes. Never claim a test
+passed unless it ran. If a test cannot run, state why and give the exact command.
+13. REQUIRED DOCUMENTATION
+Create or update these accurate files:
+ docs/DEMO_DATA_AUDIT.md — mock/hardcoded data sources and treatment.
+ docs/FEATURE_AUDIT.md — feature-by-feature status against the blueprint.
+ docs/ROLE_PERMISSION_MATRIX.md — roles, permissions, and access boundaries.
+ docs/IMPLEMENTATION_STATUS.md — complete, partial, blocked, and unimplemented requirements.
+ docs/ARCHITECTURE.md — actual architecture and data flows.
+ docs/TEST_REPORT.md — executed commands, results, failures, and unrun tests.
+ docs/DEPLOYMENT_CHECKLIST.md — environment, security, migrations, release steps.
+ docs/WEARABLE_INTEGRATION.md — providers/devices, permissions, setup, limitations, tests.
+ README.md — installation, configuration, development, seed data, tests, deployment.
+ .env.example — safe placeholders, no real secrets.
+Documentation must match the code. Do not label mocks or untested placeholders complete.
+
+--- page 6 ---
+
+Swasthya AI — Master Project Transformation Prompt
+Page 6
+14. FINAL DELIVERY
+Deliver the updated source as Swasthya_AI_Advanced_Complete.zip. Include source, dependency manifests, migrations,
+tests, docs, and safe example configuration. Exclude secrets, credentials, token files, unnecessary caches, and sensitive
+personal/health data. Provide exact install, database, environment, run, seed, test, and build commands; a
+requirement-by-requirement report; and honest status for complete, partial, blocked-by-credentials/provider/hardware, or
+unimplemented features. Report actual build/test results and limitations. Confirm the ZIP exists and can be opened before
+sharing it. Never fabricate successful tests, deployment, email, booking, device connection, AI call, or external integration.
+15. FINAL EXECUTION REQUIREMENT — COMPLETE THE PROJECT, NOT JUST
+THE CODE
+Do not stop after planning, scaffolding, generating files, or implementing the first set of features. Work through the entire
+project until every feasible feature is implemented, integrated, and tested.
+Run the frontend build, backend checks, database migrations, and automated tests. Start the app where possible. Fix errors
+and regressions, retest affected functionality, and verify existing features remain functional.
+Maintain a checklist of every requirement. Mark COMPLETE only after verification. Mark features needing unavailable API
+keys, approvals, supported hardware, or another platform as BLOCKED or PARTIALLY COMPLETE with exact setup
+instructions. Never fake success or claim an untested feature works.
+Continue across all modules instead of stopping after the first successful build. Deliver the complete ZIP, setup instructions,
+environment template, test results, known limitations, and requirement-by-requirement report. Do not replace the existing
+project with a superficial demo or discard functionality just to make the build pass.
+16. EXECUTION INSTRUCTIONS
+Open and inspect both supplied attachments. Read the codebase and blueprint carefully, then implement the transformation
+in the existing repository. Use the current stack unless a documented technical reason requires otherwise. Work in logical
+phases but continue through all phases instead of returning only a plan. Keep a progress checklist. Run available
+tests/builds, fix issues, and verify the output package. If execution is interrupted, leave clear progress notes and preserve
+completed work so it can resume.
+The goal is a functioning, secure, maintainable healthcare platform—not merely an attractive frontend, prototype,
+disconnected pages, or a report claiming the work is complete.
+
+
+
+===== FILE: c:/Users/ayush/Downloads/2.pdf =====
+
+--- page 1 ---
+
+Swasthya AI  Final Project Completion Prompt
+Page 1
+ SWASTHYA AI
+ FINAL PROJECT COMPLETION, REAL-WORLD READINESS & UI/UX
+ OVERHAUL PROMPT
+ ONE MASTER PROMPT  EXISTING CODEBASE  REAL DATA  COMPLETE UI/UX REDESIGN 
+ SECURITY  TESTING
+ Prepared for the existing Swasthya AI source archive and the Complete Feature Blueprint.
+ Important: credentials cannot be magically fetched. The prompt requires legitimate configured secrets to be reused safely, and
+ missing provider keys to be documented rather than invented.
+
+--- page 2 ---
+
+Swasthya AI  Final Project Completion Prompt
+Page 2
+HOW TO USE THIS PROMPT
+Use this as the single master instruction for a coding agent that can access the existing project files. Work directly on
+the supplied source code; do not respond with another prompt, a plan only, or a list of suggestions. Inspect the entire
+repository first, then implement, test, document, and package the improved application.
+Primary inputs: (1) the existing source archive named “Swasthya anti 2.zip”; (2)
+“Swasthya_AI_Complete_Feature_Blueprint.pdf”. Treat the blueprint as the product requirements catalogue.
+Preserve its terminology and 23 role types. Do not silently claim that a planned feature or third-party integration is live
+unless it has actually been implemented and verified.
+1. MISSION AND ACCEPTANCE STANDARD
+Transform the existing Swasthya AI codebase into a polished, coherent, maintainable healthcare platform that can be
+piloted with real users after provider onboarding, security review, clinical review, and deployment configuration. Do
+not rebuild blindly from scratch: audit the existing architecture, reuse sound components, remove dead or duplicate
+code safely, and repair the current implementation before introducing replacements.
+Deliver a complete frontend overhaul, especially the public landing page and Patient Portal. The result must feel like
+a credible healthcare product—not a generic AI dashboard, hackathon mockup, or static template. Every visible
+control must work or be clearly marked as unavailable/not configured. No fake statistics, fake appointments, fake
+clinicians, fake reviews, fake inventory, fake bed counts, or fabricated live status.
+2. FIRST: AUDIT THE WHOLE REPOSITORY
+Inventory frontend, backend, database, migrations, API routes, authentication, role/permission system, AI
+integrations, maps/geolocation, notifications, file uploads, environment variables, tests, deployment files, and
+documentation. Identify the framework and actual run commands from the repository; do not assume a stack without
+checking.
+Create a short internal implementation checklist and map every blueprint requirement to: implemented and tested;
+implemented but unverified; blocked by an external dependency; or not implemented. Fix root causes rather than
+hiding errors. Preserve working functionality. Remove unused components, placeholder pages, duplicate routes,
+dead imports, hard-coded demo data, fake API responses, sample production users, and decorative buttons only
+after confirming they are not required.
+3. REAL DATA ONLY — REMOVE DEMO DATA SAFELY
+Remove demo seed records, fake facility listings, fake doctors, sample patient histories, mock appointment slots,
+fabricated lab results, fake pharmacy stock, simulated ambulance tracking, placeholder analytics and hard-coded
+dashboards from the normal application experience. Do not replace them with more invented data.
+Use the real configured database and API for all user-specific data. Empty states must be attractive and useful:
+explain why no records exist and provide a real next action such as “Find a provider”, “Book appointment”, or “Upload
+report”. Clearly distinguish user-entered data, provider-verified data, imported data, and AI-generated suggestions.
+Show data source and last-updated time where relevant.
+If demo accounts are needed for local development or evaluation, keep them disabled by default and isolated to a
+clearly labelled development-only seed script. Put demo usernames/passwords in local environment configuration
+only if the existing workflow requires it; never ship a universal demo password, seed demo accounts in production, or
+expose credentials in the UI, repository, logs, tests, or documentation. Production must start without seeded
+personal/medical records.
+
+--- page 3 ---
+
+Swasthya AI  Final Project Completion Prompt
+Page 3
+4. ENVIRONMENT VARIABLES, SECRETS AND THIRD-PARTY KEYS
+Audit every environment-variable reference, configuration file, SDK, API client and integration in the codebase.
+Create or update .env.example with every required variable, a plain-language purpose, and a safe placeholder.
+Validate required configuration at startup and report missing settings without printing secret values. Add .env, local
+credential files, private keys, tokens, certificates and real user data to .gitignore.
+Do NOT invent, guess, scrape, extract from unrelated machines, or claim to auto-fetch API keys/client secrets that
+are not available to the project. A coding agent cannot obtain private keys merely by inspecting source code. Reuse
+only credentials already legitimately configured in the local environment or connected provider tools with explicit
+authorization. Where credentials are absent, add the integration code and a setup guide, keep the feature in an
+honest “not configured” state, and list the exact provider dashboard and environment variable needed.
+Never print secrets in terminal output, logs, screenshots, test reports, client-side bundles, error traces, or the final
+PDF/report. All private keys and server credentials stay on the server. Use public client IDs only where the provider
+explicitly documents them as public. Rotate any credential discovered to be committed or exposed; do not copy it into
+the deliverable.
+5. PROFESSIONAL FRONTEND AND UI/UX OVERHAUL
+Redesign the full frontend, not only the dashboard. Build a consistent healthcare design system with accessible
+typography, spacing, responsive grids, reusable components, sensible color tokens, clear status semantics, polished
+forms, skeleton/loading states, empty states, validation messages, error recovery and confirmation for destructive
+actions. Use calm, trustworthy healthcare styling rather than excessive gradients, glowing cards, clutter, or decorative
+AI effects.
+Public landing page: strong value proposition; clear patient and provider journeys; concise feature explanation; real
+service coverage and limitations; accessible navigation; clear sign-up/sign-in calls to action; trust, privacy and safety
+messaging; responsive mobile layout; working links; and no invented testimonials, partner logos, usage numbers or
+outcome claims.
+Patient Portal: make it an advanced, useful home base. Include a clear overview, upcoming appointments from real
+data, personal health timeline, records/reports, prescriptions where authorized, family/dependent profiles with
+consent controls, provider discovery, saved/favourite providers, appointment requests and status,
+reminders/notifications, profile and privacy controls, and support. Only show sections that are actually supported;
+otherwise use a clear setup/empty state rather than fake content.
+Create polished desktop, tablet and mobile layouts. Test keyboard-only use, focus visibility, screen-reader labels,
+contrast, readable error messages, touch target sizes, form validation, loading and offline/network-failure states. Use
+semantic HTML and WCAG 2.2 AA as the accessibility target. Do not use color alone to convey medical or booking
+status.
+Make every button, menu, modal, tab, filter, search box, form, map/list toggle, pagination control and navigation item
+functional. Remove or visibly disable nonfunctional controls. Prevent dead links, overlapping layouts, horizontal
+overflow, console errors, broken images, and inconsistent design between public pages and authenticated portals.
+6. LOCATION-AWARE PROVIDER DISCOVERY
+Implement real provider discovery for hospitals, clinics, doctors, homeopathy practitioners, diagnostic labs,
+pharmacies/medical stores and emergency service providers. Support browser GPS only after explicit permission,
+manual place/address/pincode search as a fallback, map and list views, filters, distance where reliable, directions,
+contact information, operating hours and source/freshness indicators.
+Use a legitimate, documented location/maps/geocoding provider and respect its terms, quotas, attribution and
+privacy requirements. If no API key is configured, keep manual search and a graceful not-configured state; do not
+fabricate nearby providers or map pins. Never silently collect or store precise location. Ask consent, minimize
+retention and let the user revoke permission.
+
+--- page 4 ---
+
+Swasthya AI  Final Project Completion Prompt
+Page 4
+A provider's public directory listing is not proof of current availability. Do not label a facility as open, a doctor as
+available, a bed as vacant, a medicine as in stock, or an ambulance as dispatched unless the status comes from a
+verified, sufficiently fresh source. Show “not provided”, “unverified”, or “last updated …” when appropriate.
+7. REAL BOOKING, INVENTORY AND OPERATIONS
+Build appointment workflows with real provider-managed schedules: choose provider/service, view only confirmed
+slots, submit a booking request or reservation, handle conflicts and time zones, show pending/confirmed/cancelled
+statuses, notify the appropriate parties, and preserve an audit trail. Never invent available slots. If provider calendar
+integration is unavailable, implement a clearly labelled request-to-book workflow instead of pretending instant
+booking works.
+Hospital bed availability must come from authorized hospital systems or authenticated staff updates. Pharmacy
+inventory must come from inventory/POS integration or authenticated staff updates. Lab booking/results must use the
+lab's real workflow and authorized data. Ambulance dispatch, ETA and tracking must only appear when a real
+dispatch provider or authorized operator supplies them. Clearly label unintegrated capabilities and provide
+setup/onboarding instructions.
+8. AUTHENTICATION, ROLES AND PERMISSIONS — ALL 23 BLUEPRINT
+ROLES
+Implement secure signup/sign-in, email verification or secure verification links, password reset, session
+expiry/revocation, logout, rate limiting, safe password hashing, CSRF protections where applicable, and clear
+account recovery. Enforce authorization on the backend for every protected route, API, object and file; hiding a
+frontend button is not security.
+Follow the blueprint’s role model. After authentication, route the user according to the account’s approved category
+and verified affiliations. A person may have multiple approved workspaces. Email text, self-selected labels, query
+parameters, or frontend state must never grant doctor, hospital, pharmacy, lab, emergency-provider,
+verification-admin, super-admin, or public-health-admin privileges. Privileged access requires a verified invitation,
+documented approval process, or administrator-granted role with an audit trail.
+Cover and permission-isolate all 23 roles from the blueprint: (1) Patient; (2) Hospital Doctor; (3) Hospital
+Administrator/Owner; (4) Hospital Receptionist; (5) Hospital Staff; (6) Private Doctor; (7) Private Clinic
+Owner/Administrator; (8) Clinic Receptionist; (9) Homeopathy Doctor/Practitioner; (10) Homeopathy Clinic
+Owner/Administrator; (11) Medical Store Owner; (12) Medical Store Staff/Pharmacist; (13) Platform Super Admin;
+(14) Verification Administrator; (15) Ambulance/Emergency Service Provider; (16) Diagnostic Lab Administrator; (17)
+Lab Technician; (18) Nurse; (19) Hospital Bed Manager; (20) Doctor’s Assistant; (21) Diagnostic Lab Patient; (22)
+Healthcare Support Agent; (23) Public Health Administrator.
+Create a permission matrix and test it. Apply least privilege, tenant/organization boundaries, consent-aware patient
+record access, and audit logging for sensitive reads/updates, role changes, exports, and administrative actions. Do
+not expose one hospital/clinic/lab’s records to another organization. Avoid logging medical record content or
+credentials.
+9. PATIENT DATA, FILES AND PRIVACY
+Use server-side validation and safe file handling for uploaded reports/prescriptions: size/type allowlists, content
+checks where practical, randomized storage names, malware scanning integration where available, private storage,
+expiring authorized download links, access checks, and safe deletion/retention rules. Do not make medical
+documents publicly accessible or store them in a public static directory.
+Protect health and identity data in transit and at rest according to the deployed infrastructure’s capabilities. Implement
+consent and sharing controls, record provenance, data minimization, export/deletion/correction workflows as legally
+appropriate, secure audit logs, backups and restore instructions. Do not claim legal compliance or certification
+without an actual review. Clearly document applicable legal, clinical, and security review still required before
+production.
+
+--- page 5 ---
+
+Swasthya AI  Final Project Completion Prompt
+Page 5
+10. AI ASSISTANT AND CLINICAL SAFETY
+Implement AI functionality only where the project has a configured, authorized model/API. Keep API keys
+server-side, validate inputs, enforce timeouts and rate limits, handle provider errors, and show clear messages when
+AI is unavailable. Never return fabricated AI responses when the provider call fails. Keep AI-generated suggestions
+distinct from clinician diagnoses, prescriptions or verified medical records.
+The assistant must not claim to diagnose, prescribe, guarantee outcomes, or replace a clinician. For urgent
+symptoms, direct users to local emergency services and qualified professionals. Do not delay emergency care with
+lengthy questionnaires. Avoid definitive interpretation of reports without appropriate safeguards; support clinician
+review where relevant. Include source/uncertainty messaging and prevent user-submitted text or documents from
+overriding system security rules.
+If the product includes face/camera-based stress or mood estimation, do not present face-only inference as a
+clinically valid stress measurement. Make camera use opt-in, explain the limits, offer self-report alternatives, process
+locally where feasible, do not retain frames by default, and display cautious language such as “observable cues are
+uncertain; this is not a diagnosis.” Do not infer sensitive traits or use the feature to make medical/eligibility decisions.
+11. DATABASE, API AND ENGINEERING QUALITY
+Use the existing architecture where sound. Add versioned database migrations, foreign keys, indexes, transaction
+boundaries, server-side pagination, consistent API schemas, typed validation, structured safe errors, request IDs and
+observability. Do not silently recreate or wipe a database on startup. Provide a safe migration and backup path. Use
+UTC consistently and display local times appropriately.
+Eliminate hard-coded secrets, insecure CORS, permissive production debug settings, SQL injection risks, unsafe
+deserialization, mass assignment, IDOR/BOLA access bugs, insecure direct file access, and unvalidated redirects.
+Configure production CORS from explicit environment variables. Do not expose stack traces or internal database
+details to end users.
+Keep modules maintainable, document architectural decisions, avoid unnecessary dependencies, pin compatible
+versions where appropriate, and ensure the project starts from a clean environment using documented commands.
+Add health/readiness endpoints that do not leak sensitive information.
+12. NOTIFICATIONS, ACCESSIBILITY AND RELIABILITY
+Where implemented, support reliable email/SMS/in-app notifications with consent, provider configuration,
+retry/backoff, idempotency and delivery status. Never claim a message was delivered if the provider failed. Do not put
+sensitive medical details in lock-screen notifications or unencrypted email/SMS.
+Handle slow networks, API timeouts, empty responses, expired sessions, duplicate submissions, concurrent
+bookings, unavailable maps, missing API keys and partial provider outages. Use idempotency for high-impact actions
+where appropriate. Add useful logging without secrets or unnecessary health data.
+13. TESTING — DO NOT CLAIM SUCCESS WITHOUT RUNNING IT
+Run the available formatter/linter, type checks, unit tests, API/integration tests, migration checks, frontend build and
+production build. Add missing tests for core user journeys. Test each role’s allowed and forbidden actions;
+cross-tenant access; signup, verification, login and reset; profile and family consent; upload/download authorization;
+appointment conflict/cancellation; provider search with and without location permission; missing API keys; API
+timeouts; empty states; and mobile navigation.
+Use synthetic test fixtures only inside automated tests, isolated from production data. Verify that a fresh install has no
+demo patients/providers/appointments and that production mode never seeds demo accounts. Inspect browser
+console and server logs. Fix failing tests and build errors rather than suppressing them. If a test cannot run because
+an external service/key is unavailable, report it as BLOCKED and document the manual verification step.
+
+--- page 6 ---
+
+Swasthya AI  Final Project Completion Prompt
+Page 6
+14. DEPLOYMENT AND DOCUMENTATION
+Update README with actual stack, architecture, prerequisites, clean installation, environment setup, database
+migration, development and production commands, test commands, deployment checklist, backup/restore,
+troubleshooting, API docs, security notes and role onboarding. Create .env.example without real secrets. Document
+every external integration, provider signup/dashboard, required environment variable, permissions/scopes,
+cost/quota considerations and fallback behavior.
+Add a production readiness checklist covering HTTPS, secret manager, domain/CORS, database, migrations,
+backups, monitoring, email/SMS sender, map/geocoding provider, AI provider, file storage, access controls, data
+retention, incident response, clinical review and legal review. State honestly which requirements are complete,
+blocked, or need an organization/provider to onboard.
+15. FINAL DELIVERABLES
+Deliver the updated complete source project and package it as “Swasthya_AI_Advanced_Complete.zip”. Include all
+required source files, migrations, tests, .env.example, README and setup docs. Exclude node_modules, virtual
+environments, caches, build artifacts not required for deployment, private keys, .env with real secrets, production
+data, uploaded medical records, and any credentials.
+Also provide a concise completion report with: features actually implemented; demo/mock data removed and
+locations changed; frontend pages/components redesigned; roles/permission coverage; integrations configured
+versus waiting for credentials/provider access; commands run; test/build results; known blockers; and exact steps to
+run locally. Do not say “fully production-ready” if security, clinical, legal, provider integration or deployment checks
+remain outstanding.
+The final archive must be verified by listing its contents and testing that it can be extracted. Do not deliver an empty
+placeholder ZIP or claim that files were modified when they were not. Preserve a backup of the original project before
+destructive changes.
+16. EXECUTION ORDER
+Phase 1 — inventory and map requirements. Phase 2 — secure data/configuration and remove production demo
+data. Phase 3 — repair backend, database and authorization. Phase 4 — redesign landing page and Patient Portal,
+then all remaining frontends. Phase 5 — real provider discovery and integration boundaries. Phase 6 — complete
+role-specific workflows. Phase 7 — tests, accessibility and responsive checks. Phase 8 — documentation,
+clean-install verification and final ZIP.
+Begin now by inspecting the actual files. Continue through implementation and verification without asking the user to
+rewrite this prompt or make routine decisions. Ask only when an irreversible action, unavailable account credential,
+external provider approval, or clinically/legal consequential choice genuinely requires the owner’s input. For anything
+blocked, implement the safe working fallback and document the dependency.
+
+
+
+===== FILE: c:/Users/ayush/Downloads/3.pdf =====
+
+--- page 1 ---
+
+Swasthya AI  Master Feature Test Prompt
+Page 1
+ SWASTHYA AI
+ MASTER FEATURE TEST, REPAIR & REAL-WORLD READINESS PROMPT
+ END-TO-END QA  NO DEMO DATA  BLUETOOTH  APPOINTMENTS  AI  SECURITY  CLIENT HANDOVER
+ Use this prompt with the actual source repository. It requires implementation and test evidence—not a plan-only response.
+
+--- page 2 ---
+
+Swasthya AI  Master Feature Test Prompt
+Page 2
+MISSION
+Work directly on the existing Swasthya AI repository. Test, fix, and verify every feature across frontend, backend,
+database, APIs, Bluetooth/wearables, appointments, chatbot/AI, location discovery, notifications, records, labs,
+pharmacies, hospitals, permissions, and deployment. Do not return only a plan or another prompt; implement code
+changes and report actual test results.
+NON-NEGOTIABLE NO-DEMO RULES
+Remove One-Click Demo Roles, demo login shortcuts, shared demo passwords, demo seed accounts, hard-coded
+sample medicine stock, fabricated appointment slots, fake patient histories, fake bed counts, simulated wearable
+readings, fake chatbot success, and any fallback that pretends to be live data.
+Do not use an in-memory database fallback. If persistent MongoDB is missing or unavailable, fail clearly rather than
+silently storing data in volatile memory.
+Never invent, scrape, or expose API keys/client secrets. Use only legitimately configured credentials. If a key is missing,
+report the exact provider and environment variable and test the honest unavailable state.
+Keep synthetic data only in isolated automated tests. Do not seed it into production. Do not claim production readiness
+unless real external integrations, security, clinical/privacy/legal review, and deployment tests have passed.
+TEST EVERY FEATURE
+1. Clean install, backend/frontend build, lint, type checks, database migrations, automated tests, and clean production
+package.
+2. Landing page, navigation, responsive layout, accessibility, keyboard operation, forms, validation, loading/empty/error
+states, broken links, and browser console.
+3. Registration, email verification, login, logout, password reset, session expiry, workspace switching, role provisioning,
+all 23 blueprint roles, and forbidden/cross-organization/cross-patient access.
+4. Patient Portal: profile, consent, emergency contact, appointments, health timeline, medical records,
+uploads/downloads, prescriptions, lab orders, notifications, support, privacy controls, and useful empty states.
+5. Appointments: provider schedule, booking requests, provider confirmation, cancellation, conflict handling, concurrent
+bookings, duplicate submissions, status history, notifications, time zones, and no false confirmed state.
+6. Location discovery: explicit location permission, permission denial, manual address/city/PIN search, geocoding, maps,
+provider sources, attribution, timeouts, rate limits, cache freshness, empty results, and no fake nearby providers.
+7. Bluetooth/Web Bluetooth: supported browser and secure context, user-gesture pairing, permission denial, real
+supported heart-rate sensor, connection/disconnection/reconnection, bad packets, stale timestamps, duplicate samples,
+consent/revocation, and account isolation. Without physical compatible hardware, mark BLOCKED—not PASS.
+8. Wearables/OAuth: missing credentials, callback validation, consent, real account connection, sync errors, token
+expiry/revocation, duplicate imports, and real provider data.
+9. AI/chatbot/report helper: missing API key, provider timeout, Hindi/English, unsafe requests, emergency red flags,
+prompt injection, rate limits, report reference ranges, no fabricated answers, and clear non-diagnostic language. Label
+rule-based guidance as rule-based, not a live generative chatbot.
+10. Hospitals/beds/pharmacies/labs/prescriptions: verified provider onboarding, role-authorized updates,
+timestamps/freshness, real inventory integrations, lab order/result release permissions, and audited prescription
+workflows.
+11. Notifications: configured email/SMS/in-app delivery, failures, retry/idempotency, and no sensitive medical information
+in notification previews.
+12. Security/reliability: CORS, rate limiting, request validation, IDOR/BOLA, file access, upload restrictions, password
+hashing, secret leakage, safe logs, backups/restore, database outages, and duplicate requests.
+
+--- page 3 ---
+
+Swasthya AI  Master Feature Test Prompt
+Page 3
+EXECUTION PROCESS
+First inventory every visible control, API endpoint, model, integration and role. Create an isolated test database and
+test-only synthetic fixtures. Run the suite and save evidence without secrets or health data. Fix code-caused failures and
+rerun affected tests, then rerun the full suite. Never suppress tests or mark skipped checks as passed.
+For every test, record PASS, FAIL, or BLOCKED, along with environment, command, evidence/log reference, issue,
+owner, and retest result. Missing credentials, provider approval, physical Bluetooth hardware, actual email/SMS delivery,
+and clinical/legal review must remain BLOCKED until verified.
+FINAL DELIVERABLES
+Deliver updated source code; a test report for every feature; updated FEATURE_TEST_PLAN.md, .env.example and
+README; provider setup instructions; and Swasthya_AI_Advanced_Complete.zip. Exclude .git, node_modules, .env,
+database dumps, uploads, private keys, patient records, and stale dist bundles. Include exact run/build/test commands
+and explicit remaining blockers.
+Start by inspecting the real files and continue through implementation and verification. Ask the owner only when external
+authorization/credentials, physical hardware, irreversible deletion, or a clinical/legal decision is genuinely required.
+
+
+
+===== FILE: c:/Users/ayush/Downloads/4.pdf =====
+
+--- page 1 ---
+
+Swasthya AI  Complete Debug & Test Prompt
+Page 1
+ SWASTHYA AI
+ COMPLETE PROJECT DEBUGGING, FEATURE TESTING & REPAIR PROMPT
+ LOGIN  PORTS  MONGODB  DEMO DATA  EVERY FEATURE  APIs  SECURITY  VERIFIED TESTS
+ Use with the actual project folder and authorize the coding agent to inspect, edit, run and test the source. The prompt requires
+ real test evidence and honest blockers.
+
+--- page 2 ---
+
+Swasthya AI  Complete Debug & Test Prompt
+Page 2
+ROLE AND OBJECTIVE
+Act as a senior full-stack engineer, database engineer, security engineer, QA automation engineer, and DevOps engineer.
+Work directly on the existing Swasthya AI source repository. The app has broken features, login/API/database problems,
+possible incorrect ports, and demo-data fallbacks.
+Do not return only advice, a plan, or another prompt. Inspect the repository, implement fixes, execute tests, document real
+results, and package the corrected source code. Preserve the existing architecture where sound. Do not switch languages
+just to avoid debugging.
+1. FULL REPOSITORY AUDIT
+Inspect all frontend pages/components/routes, backend routes/services/models/middleware, MongoDB configuration,
+schemas/indexes, authentication, role permissions, APIs, Bluetooth/wearables, chatbot, appointments, maps, notifications,
+file uploads, seed scripts, environment files, tests, and deployment configuration.
+Create PROJECT_AUDIT.md listing each feature, root cause, affected file, fix, and verification test. Build the feature
+inventory from the actual code and blueprint; do not skip difficult features.
+2. STARTUP, PORTS AND CONNECTIVITY
+Discover actual frontend/backend ports from configuration; do not assume defaults. Fix port collisions, incorrect API base
+URLs, hard-coded localhost URLs, proxy settings, CORS/preflight failures, missing scripts/dependencies, broken imports,
+module resolution, TypeScript/build errors, environment-variable precedence, and startup order.
+Use one documented configuration source per service URL. Repair appropriate health/readiness endpoints without leaking
+secrets. Run frontend and backend in the required processes and record actual URLs, ports, startup commands, and logs.
+Do not mark a process healthy merely because it started.
+3. DATABASE AND MONGODB
+Inspect the database library actually used before changing it. For MongoDB, verify URI format, database name,
+DNS/network access, IP allowlist, credentials, TLS, timeouts, models, collections, indexes, queries, and CRUD behavior.
+Fix connection lifecycle and errors. Never log connection strings or passwords.
+Do not silently fall back to an in-memory database. Back up before destructive changes. If MongoDB credentials or network
+access are unavailable, document the exact blocker and mark live database tests BLOCKED. Never claim a live connection
+passed without verification.
+4. LOGIN AND AUTHENTICATION
+Test registration, duplicate/invalid registration, email verification if configured, correct/incorrect login, password hashing,
+logout, session/token invalidation, expiry/refresh if implemented, password reset if configured, protected routes,
+invalid/expired tokens, role authorization, account isolation, refresh persistence, redirects, validation, rate limiting, and error
+states.
+Fix frontend and backend together. Never add universal demo passwords or authentication bypasses. Use isolated test
+accounts and a test database; do not perform destructive tests against real patient data.
+5. COMPLETE DEMO DATA REMOVAL
+Search the entire repository and production flow for demo, mock, dummy, sample, fake, placeholder, seed, hard-coded
+records, fake API responses, automatic seeding, and random health measurements. Remove demo login/One-Click Demo,
+demo accounts, fake doctors/hospitals/clinics/pharmacies/labs, fake appointments, fabricated patient histories,
+prescriptions, lab results, bed counts, inventory, analytics, maps, chatbot success, and simulated Bluetooth readings from
+production behavior.
+Keep synthetic fixtures only in isolated automated tests. Back up the database, create a reviewable list of records proven to
+be demo data, and delete only confirmed demo records. Never delete genuine patient data based on guesswork. Verify
+deleted demo accounts can no longer log in and fresh production setup does not seed them again.
+API failures and empty results must show honest error/empty states. Never replace failed API responses with fake data or
+pretend an action succeeded.
+
+--- page 3 ---
+
+Swasthya AI  Complete Debug & Test Prompt
+Page 3
+6. TEST EVERY FEATURE
+Frontend: landing page, navigation, routes/buttons/forms, responsive layout, accessibility, loading/empty/error states,
+network failures, and browser console.
+Patient Portal: profile, health timeline, appointments, medical records, uploads/downloads, prescriptions and lab results
+where supported, notifications, support, consent, privacy, and logout. Verify user ownership for every record.
+Appointments: real provider schedule, booking request, authorized confirmation, cancellation, rescheduling,
+conflict/duplicate handling, time zones, notifications, and history. Never mark a booking confirmed before provider
+confirmation.
+Chatbot/AI: configured API, missing key, invalid request, timeout, quota/rate limit, Hindi/English if supported, session
+history, safe medical responses, emergency escalation, and no fake response on provider failure.
+Bluetooth/wearables: supported browser/device, permission granted/denied, pairing, connect/disconnect/reconnect,
+unsupported device, stale/invalid/duplicate measurements, sync status, consent, and data isolation. Physical-device tests
+are BLOCKED until compatible hardware is available.
+Location/providers: manual search, permission denial, geocoding/maps, source attribution, provider records, API failures,
+freshness, and no invented nearby businesses or availability.
+Test every other feature discovered in the source and blueprint. Every feature must have an explicit test status.
+7. API INVENTORY AND CREDENTIALS
+For every API actually used, identify provider, purpose, official documentation/signup URL, exact environment variable,
+authentication method, scopes, quotas/costs, and test status. Validate endpoints and response parsing against official
+documentation.
+Create API_INTEGRATION_GUIDE.md with feature, provider, official URL, required key/client ID, environment variable,
+permissions, configured status, verified status, and remaining blocker. Never invent, scrape, expose, or claim to retrieve
+secrets that are not legitimately available.
+Possible providers only if relevant: OpenAI https://platform.openai.com/ ; Google Maps https://developers.google.com/maps
+; MongoDB Atlas https://www.mongodb.com/products/platform/atlas-database ; Resend https://resend.com/docs ; Twilio
+https://www.twilio.com/docs ; Web Bluetooth https://developer.mozilla.org/docs/Web/API/Web_Bluetooth_API . Confirm
+actual code requirements first.
+8. SECURITY AND PRIVACY
+Test backend authorization on every protected endpoint, cross-patient and cross-organization access, privilege escalation,
+input validation, injection, file access, upload restrictions, CORS, rate limits, password storage, session expiry, audit logs,
+and secret leakage.
+Keep .env, private keys, database dumps, uploads, and real patient records out of source control and final ZIP. Do not claim
+regulatory compliance without proper review.
+9. TEST EXECUTION AND EVIDENCE
+Run applicable dependency installation, lint/format checks, type checks, frontend production build, backend build/startup,
+unit tests, API/integration tests, database tests, authentication/authorization tests, critical end-to-end tests, and
+secret/demo-source scans.
+Fix code-caused failures, rerun affected tests, then rerun the full suite. Do not suppress errors or mark skipped tests as
+passed. Use PASS only with successful evidence; FAIL for executed failures; BLOCKED for missing
+credentials/hardware/provider access; NOT IMPLEMENTED where the feature does not exist.
+Create FEATURE_TEST_MATRIX.md and TEST_EXECUTION_REPORT.md with exact commands, results, evidence
+summaries, fixes, retests, and blockers.
+10. FINAL DELIVERY
+Deliver the complete updated source as Swasthya_AI_Fully_Repaired.zip, plus PROJECT_AUDIT.md,
+FEATURE_TEST_MATRIX.md, TEST_EXECUTION_REPORT.md, API_INTEGRATION_GUIDE.md, updated
+.env.example, and README with actual setup/run/test commands.
+
+--- page 4 ---
+
+Swasthya AI  Complete Debug & Test Prompt
+Page 4
+Exclude node_modules, caches, real .env files, credentials, private keys, database dumps, and real patient data. Verify the
+archive extracts correctly and that a clean installation follows documented steps.
+Start with actual source inspection and continue through implementation, testing, and packaging. Do not stop after writing
+documents. Do not claim success without execution evidence. The deliverable is repaired, tested source code—not a plan,
+screenshot, or mockup.

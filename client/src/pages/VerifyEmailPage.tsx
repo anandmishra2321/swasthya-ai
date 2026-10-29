@@ -54,7 +54,7 @@ export const VerifyEmailPage: React.FC = () => {
             <div className="pt-2">
               <Link
                 to="/login"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-sm shadow-md transition-all"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow-md transition-all"
               >
                 <span>Proceed to Sign In</span>
                 <ArrowRight className="w-4 h-4" />
@@ -68,13 +68,13 @@ export const VerifyEmailPage: React.FC = () => {
             </div>
             <h1 className="text-2xl font-bold text-slate-900">Verification Issue</h1>
             <p className="text-sm text-rose-700">{message}</p>
-            <Link to="/login" className="text-xs font-bold text-teal-600 hover:underline block pt-2">
+            <Link to="/login" className="text-xs font-bold text-indigo-600 hover:underline block pt-2">
               Back to Sign In
             </Link>
           </div>
         ) : (
           <div className="space-y-4">
-            <div className="w-16 h-16 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center mx-auto">
+            <div className="w-16 h-16 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto">
               <Mail className="w-10 h-10" />
             </div>
             <h1 className="text-2xl font-bold text-slate-900">Verify Your Email</h1>
@@ -84,7 +84,7 @@ export const VerifyEmailPage: React.FC = () => {
             <button
               onClick={handleVerify}
               disabled={status === 'loading'}
-              className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-sm shadow-md transition-all"
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow-md transition-all"
             >
               {status === 'loading' ? 'Verifying...' : 'Confirm Demo Email Verification'}
             </button>

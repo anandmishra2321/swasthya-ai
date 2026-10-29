@@ -36,7 +36,7 @@ export const DirectoryLabsPage: React.FC = () => {
       {/* Header */}
       <div className="border-b border-slate-200 pb-5">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 flex items-center gap-2">
-          <TestTube2 className="w-8 h-8 text-teal-600" />
+          <TestTube2 className="w-8 h-8 text-indigo-600" />
           Diagnostic Labs & Pathology Centers
         </h1>
         <p className="text-sm text-slate-500 mt-1">
@@ -66,15 +66,15 @@ export const DirectoryLabsPage: React.FC = () => {
 
             <div className="space-y-1.5 text-xs text-slate-600">
               <div className="flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                <MapPin className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                 <span>{lab.address.street}, {lab.address.area}, {lab.address.city}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                <Phone className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                 <span>{lab.phone}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                <Clock className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                 <span>{lab.operatingHours}</span>
               </div>
             </div>
@@ -118,7 +118,7 @@ export const DirectoryLabsPage: React.FC = () => {
                 <tr key={t.name} className="hover:bg-slate-50/70">
                   <td className="px-4 py-3.5 font-semibold text-slate-900">{t.name}</td>
                   <td className="px-4 py-3.5 text-slate-600">{t.category}</td>
-                  <td className="px-4 py-3.5 font-bold text-teal-700">{t.price}</td>
+                  <td className="px-4 py-3.5 font-bold text-indigo-700">{t.price}</td>
                   <td className="px-4 py-3.5 text-slate-600">{t.time}</td>
                   <td className="px-4 py-3.5">
                     <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200">

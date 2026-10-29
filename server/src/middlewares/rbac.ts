@@ -2,15 +2,13 @@ import { Response, NextFunction } from 'express';
 import { AuthRequest } from './auth';
 import { Membership } from '../models/Membership';
 import { Organization } from '../models/Organization';
+import { sendError, ErrorCode } from '../utils/response';
 import mongoose from 'mongoose';
 
 export function requireRole(...allowedRoles: string[]) {
   return (req: AuthRequest, res: Response, next: NextFunction): void => {
     if (!req.user) {
-      res.status(401).json({
-        success: false,
-        error: 'Authentication required.',
-      });
+      sendError(res, 401, ErrorCode.UNAUTHENTICATED, 'Authentication required.');
       return;
     }
 
@@ -23,10 +21,13 @@ export function requireRole(...allowedRoles: string[]) {
     const effectiveRole = req.workspaceRole || req.user.role;
 
     if (!allowedRoles.includes(effectiveRole) && !allowedRoles.includes(req.user.role)) {
-      res.status(403).json({
-        success: false,
-        error: `Permission denied. Required role: ${allowedRoles.join(' or ')}. Your role: ${effectiveRole}`,
-      });
+      sendError(
+        res,
+        403,
+        ErrorCode.FORBIDDEN,
+        `Permission denied. Required role: ${allowedRoles.join(' or ')}. Your role: ${effectiveRole}`,
+        { requiredRoles: allowedRoles, yourRole: effectiveRole }
+      );
       return;
     }
 
@@ -37,7 +38,7 @@ export function requireRole(...allowedRoles: string[]) {
 export function requireOrganizationAccess(orgIdParam: string = 'organizationId') {
   return async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
     if (!req.user) {
-      res.status(401).json({ success: false, error: 'Authentication required.' });
+      sendError(res, 401, ErrorCode.UNAUTHENTICATED, 'Authentication required.');
       return;
     }
 
@@ -49,14 +50,19 @@ export function requireOrganizationAccess(orgIdParam: string = 'organizationId')
     const orgId = req.params[orgIdParam] || req.body[orgIdParam] || req.query[orgIdParam] || req.activeWorkspaceId?.toString();
 
     if (!orgId || !mongoose.Types.ObjectId.isValid(orgId)) {
-      res.status(400).json({ success: false, error: 'Valid Organization ID is required.' });
+      sendError(res, 400, ErrorCode.VALIDATION_FAILED, 'Valid Organization ID is required.');
       return;
     }
 
     // Check if user is the direct owner of the organization
     const org = await Organization.findById(orgId);
     if (!org) {
-      res.status(404).json({ success: false, error: 'Organization not found.' });
+      sendError(res, 404, ErrorCode.NOT_FOUND, 'Organization not found.');
+      return;
+    }
+
+    if (!org.isVerified) {
+      sendError(res, 403, ErrorCode.FORBIDDEN, 'Organization access is unavailable until verification is complete.');
       return;
     }
 
@@ -73,10 +79,7 @@ export function requireOrganizationAccess(orgIdParam: string = 'organizationId')
     });
 
     if (!membership) {
-      res.status(403).json({
-        success: false,
-        error: 'Access denied: You are not an active member of this organization.',
-      });
+      sendError(res, 403, ErrorCode.FORBIDDEN, 'Access denied: You are not an active member of this organization.');
       return;
     }
 

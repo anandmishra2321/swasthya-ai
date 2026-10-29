@@ -33,6 +33,7 @@ export interface IUser extends Document {
   role: UserRole;
   isEmailVerified: boolean;
   verificationToken?: string;
+  verificationTokenExpiresAt?: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   activeWorkspaceId?: mongoose.Types.ObjectId;
@@ -77,6 +78,9 @@ const UserSchema = new Schema<IUser>(
     },
     verificationToken: {
       type: String,
+    },
+    verificationTokenExpiresAt: {
+      type: Date,
     },
     resetPasswordToken: {
       type: String,

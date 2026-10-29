@@ -50,7 +50,7 @@ export const DirectoryHospitalsPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 flex items-center gap-2">
-            <Building2 className="w-8 h-8 text-teal-600" />
+            <Building2 className="w-8 h-8 text-indigo-600" />
             Hospitals & Real-Time Reported Beds
           </h1>
           <p className="text-sm text-slate-500 mt-1">
@@ -82,7 +82,7 @@ export const DirectoryHospitalsPage: React.FC = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by hospital name, area, or specialized trauma service..."
-          className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm outline-none focus:border-teal-500 shadow-2xs"
+          className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm outline-none focus:border-indigo-500 shadow-2xs"
         />
       </div>
 
@@ -124,11 +124,11 @@ export const DirectoryHospitalsPage: React.FC = () => {
 
                     <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600">
                       <span className="flex items-center gap-1">
-                        <MapPin className="w-3.5 h-3.5 text-teal-600" />
+                        <MapPin className="w-3.5 h-3.5 text-indigo-600" />
                         {hospital.address.street ? `${hospital.address.street}, ` : ''}{hospital.address.area}, {hospital.address.city}
                       </span>
                       <span className="flex items-center gap-1">
-                        <Phone className="w-3.5 h-3.5 text-teal-600" />
+                        <Phone className="w-3.5 h-3.5 text-indigo-600" />
                         {hospital.phone}
                       </span>
                       {hospital.emergencyHelpline && (
@@ -163,7 +163,7 @@ export const DirectoryHospitalsPage: React.FC = () => {
                         Reported Bed Status
                       </div>
                       <div className="text-right">
-                        <span className="text-base font-extrabold text-teal-700">{totalAvail}</span>
+                        <span className="text-base font-extrabold text-indigo-700">{totalAvail}</span>
                         <span className="text-xs text-slate-400 font-medium"> / {totalCap} Vacant</span>
                       </div>
                     </div>
@@ -191,7 +191,7 @@ export const DirectoryHospitalsPage: React.FC = () => {
                               </div>
                             </div>
                             <div className="text-right">
-                              <span className="font-bold text-teal-700 text-sm">{bed.available}</span>
+                              <span className="font-bold text-indigo-700 text-sm">{bed.available}</span>
                               <span className="text-slate-400 text-[10px]"> / {bed.totalCapacity}</span>
                             </div>
                           </div>

@@ -49,7 +49,7 @@ export const DirectoryPharmaciesPage: React.FC = () => {
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 flex items-center gap-2">
-            <Pill className="w-8 h-8 text-teal-600" />
+            <Pill className="w-8 h-8 text-indigo-600" />
             Medical Stores & Jan Aushadhi Pharmacies
           </h1>
           <p className="text-sm text-slate-500 mt-1">
@@ -59,13 +59,13 @@ export const DirectoryPharmaciesPage: React.FC = () => {
       </div>
 
       {/* Live Medicine Search Widget */}
-      <div className="bg-gradient-to-r from-teal-900 to-slate-900 rounded-2xl p-6 text-white shadow-lg space-y-4">
+      <div className="bg-gradient-to-r from-indigo-900 to-slate-900 rounded-2xl p-6 text-white shadow-lg space-y-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <div>
             <h2 className="text-lg font-bold">Fast Medicine Stock Availability Check</h2>
             <p className="text-xs text-slate-300">Search generic and branded medicines in stock at registered stores.</p>
           </div>
-          <div className="text-[11px] font-mono bg-teal-800 text-teal-200 px-2 py-0.5 rounded">
+          <div className="text-[11px] font-mono bg-indigo-800 text-indigo-200 px-2 py-0.5 rounded">
             Live Retail Sync (Demo)
           </div>
         </div>
@@ -77,7 +77,7 @@ export const DirectoryPharmaciesPage: React.FC = () => {
             value={medicineQuery}
             onChange={(e) => setMedicineQuery(e.target.value)}
             placeholder="Type medicine name or generic composition (e.g. Paracetamol, Telmisartan)..."
-            className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700 text-sm text-white placeholder-slate-400 outline-none focus:border-teal-400"
+            className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700 text-sm text-white placeholder-slate-400 outline-none focus:border-indigo-400"
           />
         </div>
 
@@ -100,7 +100,7 @@ export const DirectoryPharmaciesPage: React.FC = () => {
                     <div className="text-[11px] text-slate-400">{med.generic}</div>
                   </td>
                   <td className="px-4 py-3 text-slate-300">{med.form}</td>
-                  <td className="px-4 py-3 font-semibold text-teal-300">{med.price}</td>
+                  <td className="px-4 py-3 font-semibold text-indigo-300">{med.price}</td>
                   <td className="px-4 py-3">
                     <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-950 text-emerald-300 border border-emerald-800">
                       <CheckCircle2 className="w-3 h-3" />
@@ -143,15 +143,15 @@ export const DirectoryPharmaciesPage: React.FC = () => {
 
                 <div className="space-y-1.5 text-xs text-slate-600">
                   <div className="flex items-center gap-2">
-                    <MapPin className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                    <MapPin className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                     <span>{store.address.street}, {store.address.area}, {store.address.city}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Phone className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                    <Phone className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                     <span>{store.phone}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Clock className="w-3.5 h-3.5 text-teal-600 shrink-0" />
+                    <Clock className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                     <span>{store.operatingHours}</span>
                   </div>
                 </div>
@@ -160,7 +160,7 @@ export const DirectoryPharmaciesPage: React.FC = () => {
                   {store.services.map((svc) => (
                     <span
                       key={svc}
-                      className="px-2 py-0.5 rounded-md bg-teal-50 text-teal-800 text-[11px] font-medium border border-teal-100"
+                      className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-800 text-[11px] font-medium border border-indigo-100"
                     >
                       {svc}
                     </span>

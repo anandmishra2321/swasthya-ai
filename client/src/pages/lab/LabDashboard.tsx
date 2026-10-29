@@ -22,6 +22,12 @@ export const LabDashboard: React.FC = () => {
     fetchLabOrders();
   }, [activeWorkspace]);
 
+  useEffect(() => {
+    const handler = () => fetchLabOrders();
+    window.addEventListener('swasthya:lab-result-released', handler);
+    return () => window.removeEventListener('swasthya:lab-result-released', handler);
+  }, [activeWorkspace]);
+
   const fetchLabOrders = async () => {
     try {
       setLoading(true);
@@ -123,7 +129,7 @@ export const LabDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-teal-50 text-teal-800 border border-teal-200">
+        <div className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-800 border border-indigo-200">
           Pending Releases: {orders.filter((o) => !o.isReleasedToPatient).length}
         </div>
       </div>
@@ -134,7 +140,7 @@ export const LabDashboard: React.FC = () => {
         <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <TestTube2 className="w-5 h-5 text-teal-600" />
+              <TestTube2 className="w-5 h-5 text-indigo-600" />
               Sample Orders Queue
             </h2>
             <span className="text-[10px] font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600">
@@ -161,7 +167,7 @@ export const LabDashboard: React.FC = () => {
                     }}
                     className={`p-4 rounded-2xl border text-xs cursor-pointer transition-all ${
                       isSelected
-                        ? 'border-teal-600 bg-teal-50/50 shadow-2xs'
+                        ? 'border-indigo-600 bg-indigo-50/50 shadow-2xs'
                         : 'border-slate-200 hover:bg-slate-50'
                     }`}
                   >
@@ -201,7 +207,7 @@ export const LabDashboard: React.FC = () => {
                       </button>
                       <button
                         onClick={() => handleUpdateStatus(order._id, 'completed')}
-                        className="px-2 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 text-[10px] font-bold rounded"
+                        className="px-2 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-[10px] font-bold rounded"
                       >
                         Completed
                       </button>
@@ -247,7 +253,7 @@ export const LabDashboard: React.FC = () => {
               </div>
 
               {actionMessage && (
-                <div className="p-3.5 rounded-xl bg-teal-50 border border-teal-200 text-teal-900 text-xs font-semibold">
+                <div className="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs font-semibold">
                   {actionMessage}
                 </div>
               )}
@@ -296,7 +302,7 @@ export const LabDashboard: React.FC = () => {
                             updated[i].value = e.target.value;
                             setResultsList(updated);
                           }}
-                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg font-extrabold text-teal-800 outline-none"
+                          className="w-full px-2.5 py-1.5 bg-white border border-slate-300 rounded-lg font-extrabold text-indigo-800 outline-none"
                         />
                       </div>
 
@@ -352,7 +358,7 @@ export const LabDashboard: React.FC = () => {
                     rows={2}
                     value={techNotes}
                     onChange={(e) => setTechNotes(e.target.value)}
-                    className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium outline-none focus:border-teal-500"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium outline-none focus:border-indigo-500"
                   />
                 </div>
 
@@ -360,7 +366,7 @@ export const LabDashboard: React.FC = () => {
                   <button
                     type="submit"
                     disabled={actionLoading}
-                    className="px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
+                    className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-all"
                   >
                     Save & Validate Results
                   </button>

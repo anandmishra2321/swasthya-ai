@@ -120,7 +120,7 @@ export const AdminDashboard: React.FC = () => {
           onClick={() => setActiveTab('verification')}
           className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition-all ${
             activeTab === 'verification'
-              ? 'border-teal-600 text-teal-700 bg-teal-50/40 rounded-t-xl'
+              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40 rounded-t-xl'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -132,7 +132,7 @@ export const AdminDashboard: React.FC = () => {
           onClick={() => setActiveTab('analytics')}
           className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition-all ${
             activeTab === 'analytics'
-              ? 'border-teal-600 text-teal-700 bg-teal-50/40 rounded-t-xl'
+              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40 rounded-t-xl'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -144,7 +144,7 @@ export const AdminDashboard: React.FC = () => {
           onClick={() => setActiveTab('audit')}
           className={`px-4 py-3 text-xs font-bold border-b-2 flex items-center gap-2 transition-all ${
             activeTab === 'audit'
-              ? 'border-teal-600 text-teal-700 bg-teal-50/40 rounded-t-xl'
+              ? 'border-indigo-600 text-indigo-700 bg-indigo-50/40 rounded-t-xl'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -179,7 +179,7 @@ export const AdminDashboard: React.FC = () => {
                       onClick={() => setSelectedCase(c)}
                       className={`p-3.5 rounded-2xl border text-xs cursor-pointer transition-all ${
                         isSelected
-                          ? 'border-teal-600 bg-teal-50/50 shadow-2xs'
+                          ? 'border-indigo-600 bg-indigo-50/50 shadow-2xs'
                           : 'border-slate-200 hover:bg-slate-50'
                       }`}
                     >
@@ -266,7 +266,7 @@ export const AdminDashboard: React.FC = () => {
                     value={decisionNotes}
                     onChange={(e) => setDecisionNotes(e.target.value)}
                     placeholder="Provide audit verification reason or corrective requirements..."
-                    className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium outline-none bg-white focus:border-teal-500"
+                    className="w-full p-2.5 rounded-xl border border-slate-300 text-xs font-medium outline-none bg-white focus:border-indigo-500"
                   />
 
                   <div className="flex flex-wrap items-center justify-end gap-2 pt-2">
@@ -287,7 +287,7 @@ export const AdminDashboard: React.FC = () => {
                     <button
                       onClick={() => handleDecision('verified')}
                       disabled={decisionLoading}
-                      className="px-5 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-xs shadow-xs transition-colors"
+                      className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-xs transition-colors"
                     >
                       Approve & Grant Verified Badge
                     </button>
@@ -330,11 +330,11 @@ export const AdminDashboard: React.FC = () => {
                 </div>
 
                 <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-                  <div className="text-xs font-semibold text-teal-800 uppercase tracking-wider">Regional Bed Vacancy</div>
-                  <div className="text-2xl font-black text-teal-700 mt-1">
+                  <div className="text-xs font-semibold text-indigo-800 uppercase tracking-wider">Regional Bed Vacancy</div>
+                  <div className="text-2xl font-black text-indigo-700 mt-1">
                     {analytics.beds.totalAvailable} <span className="text-xs text-slate-400">/ {analytics.beds.totalCapacity}</span>
                   </div>
-                  <div className="text-[11px] text-teal-700 font-semibold mt-1">
+                  <div className="text-[11px] text-indigo-700 font-semibold mt-1">
                     {analytics.beds.occupancyRatePercentage}% Occupancy rate
                   </div>
                 </div>
@@ -350,7 +350,7 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </div>
 
-              <div className="p-4 bg-teal-50 border border-teal-200 rounded-2xl text-xs text-teal-900">
+              <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl text-xs text-indigo-900">
                 <strong>Data Privacy Notice:</strong> {analytics.notice}
               </div>
             </>
@@ -364,7 +364,7 @@ export const AdminDashboard: React.FC = () => {
       {activeTab === 'audit' && (
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
           <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-            <Clock className="w-5 h-5 text-teal-600" />
+            <Clock className="w-5 h-5 text-indigo-600" />
             Immutable System Audit Trail
           </h2>
 
@@ -389,7 +389,7 @@ export const AdminDashboard: React.FC = () => {
                       {log.actorEmail || 'System'}
                       <span className="block text-[10px] text-slate-400 capitalize">{log.actorRole}</span>
                     </td>
-                    <td className="px-4 py-3 font-bold text-teal-700 font-mono text-[11px]">
+                    <td className="px-4 py-3 font-bold text-indigo-700 font-mono text-[11px]">
                       {log.action}
                     </td>
                     <td className="px-4 py-3 text-slate-600">{log.targetType || 'Platform'}</td>

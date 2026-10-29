@@ -115,7 +115,7 @@ export const ReceptionistDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-teal-50 text-teal-800 border border-teal-200">
+        <div className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-indigo-50 text-indigo-800 border border-indigo-200">
           Today's Date: {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}
         </div>
       </div>
@@ -125,7 +125,7 @@ export const ReceptionistDashboard: React.FC = () => {
         {/* Fast Walk-in Booking Form */}
         <div className="bg-white rounded-3xl p-6 border border-slate-200 shadow-xs space-y-4">
           <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <UserPlus className="w-5 h-5 text-teal-600" />
+            <UserPlus className="w-5 h-5 text-indigo-600" />
             Quick Walk-In Registration
           </h2>
 
@@ -151,7 +151,7 @@ export const ReceptionistDashboard: React.FC = () => {
                 value={patientName}
                 onChange={(e) => setPatientName(e.target.value)}
                 placeholder="e.g. Ramesh Verma"
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium outline-none focus:border-teal-500"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium outline-none focus:border-indigo-500"
               />
             </div>
 
@@ -162,7 +162,7 @@ export const ReceptionistDashboard: React.FC = () => {
                 value={patientPhone}
                 onChange={(e) => setPatientPhone(e.target.value)}
                 placeholder="+91 98260 00000"
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium outline-none focus:border-teal-500"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium outline-none focus:border-indigo-500"
               />
             </div>
 
@@ -171,7 +171,7 @@ export const ReceptionistDashboard: React.FC = () => {
               <select
                 value={selectedDoctorId}
                 onChange={(e) => setSelectedDoctorId(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium outline-none focus:border-teal-500"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium outline-none focus:border-indigo-500"
               >
                 {doctors.map((d) => (
                   <option key={d._id} value={d._id}>
@@ -186,7 +186,7 @@ export const ReceptionistDashboard: React.FC = () => {
               <select
                 value={selectedSlot}
                 onChange={(e) => setSelectedSlot(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium outline-none focus:border-teal-500"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium outline-none focus:border-indigo-500"
               >
                 <option value="10:00 AM">10:00 AM</option>
                 <option value="10:30 AM">10:30 AM</option>
@@ -205,14 +205,14 @@ export const ReceptionistDashboard: React.FC = () => {
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="Walk-in complaints"
-                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium outline-none focus:border-teal-500"
+                className="w-full px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium outline-none focus:border-indigo-500"
               />
             </div>
 
             <button
               type="submit"
               disabled={bookingLoading}
-              className="w-full py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-xs shadow-xs transition-all"
+              className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-xs transition-all"
             >
               {bookingLoading ? 'Issuing Token...' : 'Generate OPD Token & Book'}
             </button>
@@ -224,7 +224,7 @@ export const ReceptionistDashboard: React.FC = () => {
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
               <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-                <Clock className="w-5 h-5 text-teal-600" />
+                <Clock className="w-5 h-5 text-indigo-600" />
                 Live Patient Check-In Queue
               </h2>
               <p className="text-xs text-slate-500">Verify patient arrival and update queue position for clinicians.</p>
@@ -243,7 +243,7 @@ export const ReceptionistDashboard: React.FC = () => {
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-black text-slate-900">Token #{appt.tokenNumber}</span>
-                    <span className="font-bold text-teal-800 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+                    <span className="font-bold text-indigo-800 bg-indigo-50 px-2 py-0.5 rounded border border-indigo-200">
                       {appt.timeSlot}
                     </span>
                     <span className="capitalize font-semibold text-slate-500">({appt.status})</span>
@@ -260,7 +260,7 @@ export const ReceptionistDashboard: React.FC = () => {
                   {appt.status === 'confirmed' ? (
                     <button
                       onClick={() => handleCheckIn(appt._id)}
-                      className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-xs shadow-xs"
+                      className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-xs"
                     >
                       Check-In Patient
                     </button>

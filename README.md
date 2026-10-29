@@ -70,24 +70,43 @@ graph TD
 
 ```bash
 # 1. Clone or navigate to the repository
-cd d:/Swasthya
+cd D:\Swasthya
 
 # 2. Install dependencies across root, server, and client
 npm install
-npm install --prefix server
-npm install --prefix client
 
-# 3. Seed the database with rich realistic demo data
-npm run seed
-
-# 4. Start both Server and Client concurrently
+# 3. Start both Server and Client concurrently (empty development DB is seeded on server startup)
 npm run dev
 ```
+
+`npm run seed` is for an explicitly configured persistent local MongoDB; it skips populated databases by default. To explicitly reset a dedicated local demo database, use PowerShell:
+```powershell
+$env:SEED_RESET = 'true'
+npm run seed
+Remove-Item Env:\SEED_RESET
+```
+Never run the destructive reset against a real or production database.
 
 The application will be live at:
 - **Frontend Web UI**: [http://localhost:5173](http://localhost:5173)
 - **Backend API**: [http://localhost:5000/api/v1](http://localhost:5000/api/v1)
 - **API Health Check**: [http://localhost:5000/api/health](http://localhost:5000/api/health)
+
+## 3.1 Project Documentation Bundle
+The transformation package includes the required documentation set in [docs/](./docs/):
+- [docs/DEMO_DATA_AUDIT.md](./docs/DEMO_DATA_AUDIT.md)
+- [docs/FEATURE_AUDIT.md](./docs/FEATURE_AUDIT.md)
+- [docs/ROLE_PERMISSION_MATRIX.md](./docs/ROLE_PERMISSION_MATRIX.md)
+- [docs/IMPLEMENTATION_STATUS.md](./docs/IMPLEMENTATION_STATUS.md)
+- [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
+- [docs/TEST_REPORT.md](./docs/TEST_REPORT.md)
+- [docs/DEPLOYMENT_CHECKLIST.md](./docs/DEPLOYMENT_CHECKLIST.md)
+- [docs/WEARABLE_INTEGRATION.md](./docs/WEARABLE_INTEGRATION.md)
+
+## 3.2 Verified status
+The current repository is verified to pass the server test suite and the production build:
+- `npm test` → passed (39 tests)
+- `npm run build` → passed
 
 ---
 
@@ -99,7 +118,7 @@ Run the full automated test suite using:
 npm test
 ```
 
-### Verified Test Cases (13 Passing):
+### Verified Test Cases (39 Passing):
 - `Authentication & RBAC`: Invalid login rejection, generic error messages, session verification, admin endpoint permission gating.
 - `Healthcare Directory & Freshness`: Bed summaries, updater timestamps, stale data indicators (>12h).
 - `Double-Booking Prevention`: Prevents concurrent booking for the same doctor, date, and time slot.
@@ -137,7 +156,7 @@ npm test
 
 | Scope / Role | Feature | Status | Notes |
 | :--- | :--- | :---: | :--- |
-| **Patient** | Self-registration & Demo Email Verification | **Done** | Local verification token simulation |
+| **Patient** | Self-registration & Demo Email Verification | **Partial** | Patient-only, local demo token; production disabled until real email delivery exists |
 | **Patient** | Health Timeline & Medical Records | **Done** | Chronological record view |
 | **Patient** | Appointment Booking & Cancellation | **Done** | Prevents double bookings |
 | **Patient** | Digital Prescriptions & Reminders | **Done** | Displays medicines, frequency & advice |
@@ -187,8 +206,17 @@ npm test
 
 ---
 
-## 8. Integration Adapters & Production Next Steps
+## 8. Integration Status & Production Next Steps
 
-1. **AI Provider**: Currently running on built-in medical safety engine. Set `AI_PROVIDER=gemini` and supply `AI_API_KEY` in `.env` to connect live Google Gemini models.
-2. **SMS / Email**: Adapter interface available in `/server/src/services/emailService.ts`. Set `EMAIL_PROVIDER=smtp` or `sendgrid` in production.
-3. **Maps / Geocoding**: Provider-agnostic coordinates ready. Provide `MAP_API_KEY` for Mapbox or Google Maps integration.
+- **AI**: The current deterministic guidance and report template are development-only and explicitly marked as mock output. No live AI provider adapter is implemented. Production endpoints return an unavailable response rather than pretending to call a model.
+- **Email/SMS**: Email delivery is not implemented. Production patient signup and organization invitation creation are therefore disabled; the local demo shows a one-time verification/invitation token for testing. SMS is unavailable.
+- **Maps**: The directory uses configured/open map data paths; verify provider terms, coverage, request limits, and attribution before production.
+- **Wearables**: Web Bluetooth requires a supported browser/device and explicit permission. Apple Health, Health Connect, and vendor APIs require companion apps or provider approval.
+- **Payments and emergency dispatch**: No live settlement or dispatch is claimed without provider credentials and end-to-end integration.
+
+### Secure initial Super Admin bootstrap
+For a production deployment, configure `MONGODB_URI`, strong JWT secrets, `BOOTSTRAP_ADMIN_EMAIL`, `BOOTSTRAP_ADMIN_PASSWORD` (12+ characters), and `NODE_ENV=production` in the operator environment, then run once:
+```powershell
+npm run bootstrap:admin --workspace=server
+```
+The command refuses if a Super Admin already exists. Remove the bootstrap password from the environment after it completes. Never use public signup to create privileged accounts.

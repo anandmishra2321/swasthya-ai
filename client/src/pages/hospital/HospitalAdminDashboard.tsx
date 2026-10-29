@@ -46,6 +46,12 @@ export const HospitalAdminDashboard: React.FC = () => {
     fetchHospitalData();
   }, [activeWorkspace]);
 
+  useEffect(() => {
+    const handler = () => fetchHospitalData();
+    window.addEventListener('swasthya:beds-updated', handler);
+    return () => window.removeEventListener('swasthya:beds-updated', handler);
+  }, [activeWorkspace]);
+
   const fetchHospitalData = async () => {
     try {
       setLoading(true);
@@ -161,7 +167,7 @@ export const HospitalAdminDashboard: React.FC = () => {
 
         <button
           onClick={() => setInviteModalOpen(true)}
-          className="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+          className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
         >
           <UserPlus className="w-4 h-4" />
           Invite Staff Member
@@ -177,9 +183,9 @@ export const HospitalAdminDashboard: React.FC = () => {
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
-          <div className="text-xs font-semibold text-teal-800 uppercase tracking-wider">Available / Vacant</div>
-          <div className="text-2xl sm:text-3xl font-black text-teal-600 mt-1">{totalAvail}</div>
-          <div className="text-[11px] text-teal-700 font-semibold mt-1">Ready for intake</div>
+          <div className="text-xs font-semibold text-indigo-800 uppercase tracking-wider">Available / Vacant</div>
+          <div className="text-2xl sm:text-3xl font-black text-indigo-600 mt-1">{totalAvail}</div>
+          <div className="text-[11px] text-indigo-700 font-semibold mt-1">Ready for intake</div>
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-2xs">
@@ -202,7 +208,7 @@ export const HospitalAdminDashboard: React.FC = () => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 pb-4 border-b border-slate-100">
           <div>
             <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-              <HeartPulse className="w-5 h-5 text-teal-600" />
+              <HeartPulse className="w-5 h-5 text-indigo-600" />
               Inpatient Bed Board & Live Ward Capacity
             </h2>
             <p className="text-xs text-slate-500">
@@ -261,7 +267,7 @@ export const HospitalAdminDashboard: React.FC = () => {
                             min={0}
                             value={editAvail}
                             onChange={(e) => setEditAvail(parseInt(e.target.value) || 0)}
-                            className="w-16 px-2 py-1 rounded border border-teal-500 font-bold text-teal-700"
+                            className="w-16 px-2 py-1 rounded border border-indigo-500 font-bold text-indigo-700"
                           />
                         </td>
                         <td className="px-4 py-2">
@@ -295,7 +301,7 @@ export const HospitalAdminDashboard: React.FC = () => {
                     ) : (
                       <>
                         <td className="px-4 py-3.5 font-bold text-slate-800">{bed.totalCapacity}</td>
-                        <td className="px-4 py-3.5 font-extrabold text-teal-700 text-sm">{bed.available}</td>
+                        <td className="px-4 py-3.5 font-extrabold text-indigo-700 text-sm">{bed.available}</td>
                         <td className="px-4 py-3.5 font-semibold text-slate-700">{bed.occupied}</td>
                         <td className="px-4 py-3.5 text-slate-500">{bed.cleaning}</td>
                         <td className="px-4 py-3.5 text-slate-500">{bed.reserved}</td>
@@ -317,7 +323,7 @@ export const HospitalAdminDashboard: React.FC = () => {
                           <button
                             onClick={() => handleSaveBed(bed._id)}
                             disabled={saveLoading}
-                            className="px-2.5 py-1 bg-teal-600 hover:bg-teal-700 text-white rounded font-bold text-[11px]"
+                            className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded font-bold text-[11px]"
                           >
                             Save
                           </button>
@@ -348,7 +354,7 @@ export const HospitalAdminDashboard: React.FC = () => {
       {/* Staff Directory */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <Users className="w-5 h-5 text-teal-600" />
+          <Users className="w-5 h-5 text-indigo-600" />
           Active Hospital Personnel & Affiliations
         </h2>
 
@@ -356,7 +362,7 @@ export const HospitalAdminDashboard: React.FC = () => {
           {staff.map((member) => (
             <div key={member._id} className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 space-y-1 text-xs">
               <div className="font-bold text-slate-900 text-sm">{member.userId?.name}</div>
-              <div className="text-teal-700 font-semibold capitalize">{member.role.replace(/_/g, ' ')}</div>
+              <div className="text-indigo-700 font-semibold capitalize">{member.role.replace(/_/g, ' ')}</div>
               <div className="text-slate-500 text-[11px]">{member.userId?.email}</div>
               <div className="text-slate-400 text-[11px]">Dept: {member.department || 'General'}</div>
             </div>
@@ -376,7 +382,7 @@ export const HospitalAdminDashboard: React.FC = () => {
             </div>
 
             {inviteMessage && (
-              <div className="p-3 rounded-xl bg-teal-50 border border-teal-200 text-teal-900 text-xs font-semibold">
+              <div className="p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 text-xs font-semibold">
                 {inviteMessage}
               </div>
             )}
@@ -390,7 +396,7 @@ export const HospitalAdminDashboard: React.FC = () => {
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
                   placeholder="e.g. nurse.rekha@swasthya.demo"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium outline-none focus:border-indigo-500"
                 />
               </div>
 
@@ -399,7 +405,7 @@ export const HospitalAdminDashboard: React.FC = () => {
                 <select
                   value={inviteRole}
                   onChange={(e) => setInviteRole(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium outline-none focus:border-teal-500 bg-white"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium outline-none focus:border-indigo-500 bg-white"
                 >
                   <option value="hospital_doctor">Hospital Doctor / Clinician</option>
                   <option value="nurse">Staff Nurse</option>
@@ -416,7 +422,7 @@ export const HospitalAdminDashboard: React.FC = () => {
                   value={inviteDepartment}
                   onChange={(e) => setInviteDepartment(e.target.value)}
                   placeholder="e.g. Cardiology, Inpatient Care, ICU"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium outline-none focus:border-teal-500"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium outline-none focus:border-indigo-500"
                 />
               </div>
 
@@ -431,7 +437,7 @@ export const HospitalAdminDashboard: React.FC = () => {
                 <button
                   type="submit"
                   disabled={inviteLoading}
-                  className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-xs shadow-xs"
+                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-xs shadow-xs"
                 >
                   {inviteLoading ? 'Sending Invite...' : 'Send Invitation'}
                 </button>

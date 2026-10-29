@@ -2,6 +2,7 @@ import { env } from '../config/env';
 
 export interface SymptomAssessmentResult {
   isEmergency: boolean;
+  isMock: boolean;
   emergencyType?: string;
   advice: string;
   adviceHindi: string;
@@ -35,12 +36,19 @@ const RED_FLAGS = [
 ];
 
 export class AIService {
+  public static isAvailable(): boolean {
+    if (env.AI_PROVIDER === 'mock') return env.NODE_ENV !== 'production';
+    if (env.AI_PROVIDER === 'gemini') return !!env.AI_API_KEY;
+    return false;
+  }
+
   public static checkEmergencyRedFlags(text: string): SymptomAssessmentResult | null {
     const lower = text.toLowerCase();
     for (const flag of RED_FLAGS) {
       if (flag.trigger.some((word) => lower.includes(word))) {
         return {
           isEmergency: true,
+          isMock: true,
           emergencyType: flag.type,
           advice: `RED FLAG DETECTED: Symptoms describe a potential medical emergency (${flag.type}). DO NOT DELAY. Call National Emergency Helpline 112 / 108 or go immediately to the nearest Hospital Emergency Room / Trauma Center.`,
           adviceHindi: `आपातकालीन चेतावनी: आपके लक्षण चिकित्सीय आपात स्थिति (${flag.type}) की ओर संकेत कर रहे हैं। बिना देर किए तुरंत 112 / 108 पर संपर्क करें या नजदीकी अस्पताल के इमरजेंसी/ट्रॉमा वार्ड में जाएं।`,
@@ -52,11 +60,57 @@ export class AIService {
     return null;
   }
 
+  public static async callGemini(prompt: string): Promise<string | null> {
+    if (env.AI_PROVIDER !== 'gemini' || !env.AI_API_KEY) return null;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${env.AI_API_KEY}`;
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: { temperature: 0.3, maxOutputTokens: 512 },
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) {
+        console.error('[AI] Gemini HTTP', res.status);
+        return null;
+      }
+      const data: any = await res.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      return text ? String(text).trim() : null;
+    } catch (err: any) {
+      clearTimeout(timeoutId);
+      console.error('[AI] Gemini call failed:', err?.message);
+      return null;
+    }
+  }
   public static async analyzeSymptoms(symptoms: string, language: 'en' | 'hi' = 'en'): Promise<SymptomAssessmentResult> {
     // First, check red flags
     const redFlag = this.checkEmergencyRedFlags(symptoms);
     if (redFlag) {
       return redFlag;
+    }
+
+    // Use Gemini if configured
+    const geminiText = await this.callGemini(
+      `You are a healthcare assistant. The user reports these symptoms: "${symptoms}". ` +
+      `Respond in ${language === 'hi' ? 'Hindi' : 'English'}. Provide: 1) possible department/specialty, 2) general guidance, 3) when to see a doctor. ` +
+      `Do NOT diagnose. Include a disclaimer that this is not medical advice. Keep it concise.`
+    );
+    if (geminiText) {
+      return {
+        isEmergency: false,
+        isMock: false,
+        advice: geminiText,
+        adviceHindi: language === 'hi' ? geminiText : 'AI-generated guidance available in English.',
+        recommendedDepartment: 'General Medicine',
+        disclaimer: 'AI-generated informational guidance only. Not a medical diagnosis. Consult a licensed clinician.',
+      };
     }
 
     // Normal symptom guidance
@@ -85,6 +139,7 @@ export class AIService {
 
     return {
       isEmergency: false,
+      isMock: true,
       advice: enAdvice,
       adviceHindi: hiAdvice,
       recommendedDepartment: department,
@@ -93,84 +148,121 @@ export class AIService {
   }
 
   public static async explainLabReport(reportText: string, parameters: Array<{ name: string; value: string; unit?: string }>): Promise<ReportAnalysisResult> {
-    const keyFindings = parameters.map((param) => {
-      const lower = param.name.toLowerCase();
-      let status: 'normal' | 'high' | 'low' | 'attention' = 'normal';
-      let explanation = `${param.name} is measured at ${param.value}. Within typical clinical limits.`;
-      let explanationHindi = `${param.name} का स्तर ${param.value} है, जो सामान्य सीमा के भीतर प्रतीत होता है।`;
-
-      const numVal = parseFloat(param.value);
-
-      if (lower.includes('hemoglobin') || lower.includes('hb')) {
-        if (!isNaN(numVal) && numVal < 12) {
-          status = 'low';
-          explanation = `Hemoglobin (${param.value}) is on the lower side, which may indicate mild anemia or iron deficiency.`;
-          explanationHindi = `हीमोग्लोबिन (${param.value}) कम है, जो एनीमिया या आयरन की कमी का संकेत हो सकता है।`;
-        } else if (!isNaN(numVal) && numVal > 17) {
-          status = 'high';
-          explanation = `Hemoglobin (${param.value}) is elevated. Needs clinician evaluation for dehydration or erythrocytosis.`;
-          explanationHindi = `हीमोग्लोबिन (${param.value}) सामान्य से अधिक है। निर्जलीकरण या अन्य कारणों की जांच आवश्यक है।`;
-        }
-      } else if (lower.includes('platelet')) {
-        if (!isNaN(numVal) && numVal < 150000) {
-          status = 'low';
-          explanation = `Platelet count (${param.value}) is below standard range. Clinician review is recommended to rule out infections like dengue or viral fevers.`;
-          explanationHindi = `प्लेटलेट काउंट (${param.value}) सामान्य से कम है। डेंगू या वायरल संक्रमण की जांच के लिए डॉक्टर से संपर्क करें।`;
-        }
-      } else if (lower.includes('sugar') || lower.includes('glucose') || lower.includes('fasting')) {
-        if (!isNaN(numVal) && numVal > 125) {
-          status = 'high';
-          explanation = `Blood Glucose (${param.value}) is elevated above typical fasting levels (>125 mg/dL), indicating possible diabetes or pre-diabetes.`;
-          explanationHindi = `ब्लड शुगर (${param.value}) सामान्य से अधिक है, जो डायबिटीज की संभावना दर्शाता है। डॉक्टर से जांच कराएं।`;
-        }
-      } else if (lower.includes('creatinine')) {
-        if (!isNaN(numVal) && numVal > 1.3) {
-          status = 'high';
-          explanation = `Serum Creatinine (${param.value}) is elevated, which can indicate stress on kidney filtration.`;
-          explanationHindi = `सीरम क्रिएटिनिन (${param.value}) बढ़ा हुआ है, जो किडनी के कार्य पर तनाव का संकेत दे सकता है।`;
-        }
+    // Try Gemini if configured
+    const geminiText = await this.callGemini(
+      `You are a medical report explainer. Given these lab parameters: ${JSON.stringify(parameters)}. ` +
+      `Report text: ${reportText || 'N/A'}. ` +
+      `For each parameter, classify as normal/high/low/attention and explain in simple terms (English). ` +
+      `Return JSON with keys: summary (string), keyFindings (array of {parameter, value, status, explanation, explanationHindi}), ` +
+      `suggestedQuestionsForDoctor (string[]), disclaimer (string). Ensure valid JSON only.`
+    );
+    if (geminiText) {
+      try {
+        const parsed = JSON.parse(geminiText.replace(/```json|```/g, '').trim());
+        return {
+          summary: parsed.summary || 'AI-generated report summary.',
+          summaryHindi: parsed.summaryHindi || parsed.summary || 'AI-generated report summary.',
+          keyFindings: (parsed.keyFindings || []).map((k: any) => ({
+            parameter: k.parameter,
+            value: k.value,
+            status: k.status || 'attention',
+            explanation: k.explanation || '',
+            explanationHindi: k.explanationHindi || k.explanation || '',
+          })),
+          suggestedQuestionsForDoctor: parsed.suggestedQuestionsForDoctor || [],
+          disclaimer: parsed.disclaimer || 'AI-generated. Confirm with a licensed clinician.',
+          isMock: false,
+        };
+      } catch {
+        // fall through to mock
       }
+    }
+
+    const keyFindings = parameters.map((param) => {
+      const value = param.value + (param.unit ? ` ${param.unit}` : '');
 
       return {
         parameter: param.name,
-        value: param.value + (param.unit ? ` ${param.unit}` : ''),
-        status,
-        explanation,
-        explanationHindi,
+        value,
+        status: 'attention' as const,
+        explanation: `Supplied value: ${value}. No reference range was supplied, so this demo cannot classify it as normal or abnormal.`,
+        explanationHindi: `दिया गया मान: ${value}। कोई संदर्भ सीमा नहीं दी गई है, इसलिए यह डेमो इसे सामान्य या असामान्य नहीं बता सकता।`,
       };
     });
 
-    const hasAbnormal = keyFindings.some((k) => k.status !== 'normal');
-
     return {
-      summary: hasAbnormal
-        ? 'Some test parameters deviate from the standard laboratory reference intervals. Please review with your doctor for clinical interpretation.'
-        : 'All measured parameters in this report appear to fall within standard reference intervals.',
-      summaryHindi: hasAbnormal
-        ? 'इस रिपोर्ट के कुछ पैरामीटर सामान्य संदर्भ सीमा से भिन्न हैं। सटीक व्याख्या और उपचार के लिए कृपया अपने डॉक्टर को दिखाएं।'
-        : 'इस रिपोर्ट के सभी मापदंड सामान्य सीमा के भीतर प्रतीत होते हैं।',
+      summary: 'Development-only template output. No reference ranges were supplied, so no clinical interpretation is made.',
+      summaryHindi: 'केवल विकास/डेमो हेतु टेम्पलेट उत्तर। संदर्भ सीमाएं उपलब्ध नहीं हैं, इसलिए कोई चिकित्सीय व्याख्या नहीं की गई है।',
       keyFindings,
       suggestedQuestionsForDoctor: [
         'Do I need any dietary modifications based on these values?',
         'Should any of these tests be repeated after a few weeks?',
         'Are these test results influenced by any medication I currently take?',
       ],
-      disclaimer: 'AI report analysis is informational and educational only. Never make medication or treatment adjustments without a licensed physician.',
-      isMock: env.AI_PROVIDER === 'mock',
+      disclaimer: 'This is not AI or clinician interpretation. Confirm values and reference ranges with the laboratory and a licensed clinician.',
+      isMock: true,
     };
   }
 
-  public static generateClinicalDraftSummary(clinicalNotes: {
+  public static async chat(message: string, language: 'en' | 'hi' = 'en'): Promise<string> {
+    const geminiText = await this.callGemini(
+      `You are Swasthya AI, a helpful healthcare assistant. User message: "${message}". ` +
+      `Respond in ${language === 'hi' ? 'Hindi' : 'English'}. Be concise, safe, non-diagnostic. ` +
+      `Include a disclaimer that this is not medical advice.`
+    );
+    if (geminiText) return geminiText;
+
+    // Local fallback so the chatbot remains usable when the live provider is unavailable.
+    const lower = message.toLowerCase();
+    if (lower.includes('fever') || lower.includes('bukhar')) {
+      return (language === 'hi'
+        ? 'बुखार के लिए आराम करें, पर्याप्त पानी पिएं और तापमान नापें। यदि बुखार 3 दिन से अधिक रहे या सांस लेने में तकलीफ हो तो डॉक्टर से मिलें।'
+        : 'For fever: rest, hydrate, and monitor temperature. If fever persists beyond 3 days or breathing difficulty occurs, consult a doctor.') +
+        '\n\nDisclaimer: Informational only, not medical advice.';
+    }
+    if (lower.includes('headache') || lower.includes('sir dard')) {
+      return (language === 'hi'
+        ? 'सिरदर्द के लिए आराम, पानी और कम रोशनी में आराम करें। अचानक तेज़ सिरदर्द या उल्टी हो तो तुरंत डॉक्टर से मिलें।'
+        : 'For headache: rest, hydrate, and avoid bright light. Seek immediate care for sudden severe headache or vomiting.') +
+        '\n\nDisclaimer: Informational only, not medical advice.';
+    }
+    if (lower.includes('cough') || lower.includes('khansi')) {
+      return (language === 'hi'
+        ? 'खांसी के लिए गर्म पानी, भाप और गले की आराम दें। यदि खांसी 2 हफ्ते से अधिक रहे तो डॉक्टर से मिलें।'
+        : 'For cough: warm fluids, steam, and throat rest. Consult a doctor if cough persists beyond 2 weeks.') +
+        '\n\nDisclaimer: Informational only, not medical advice.';
+    }
+    return (language === 'hi'
+      ? 'मैं आपके स्वास्थ्य सवालों में मदद कर सकता हूं (बुखार, खांसी, सिरदर्द आदि)। तत्काल आपात स्थिति में 112/108 पर कॉल करें।'
+      : 'I can help with general health questions (fever, cough, headache, etc.). For emergencies, call 112/108 immediately.') +
+      '\n\nDisclaimer: Informational only, not medical advice. Consult a licensed clinician.';
+  }
+
+  public static async drugInteractionCheck(medicines: string[]): Promise<string> {
+    const geminiText = await this.callGemini(
+      `You are a clinical pharmacology assistant. Check for potential interactions/allergies among these medicines: ${medicines.join(', ')}. ` +
+      `List any known interactions, contraindications, and precautions in concise bullet points. ` +
+      `Always recommend consulting a pharmacist/clinician. This is informational only.`
+    );
+    return geminiText || 'Interaction check unavailable (AI not configured).';
+  }
+
+  public static async generateClinicalDraftSummary(clinicalNotes: {
     symptoms?: string;
     examination?: string;
     diagnosis?: string;
     plan?: string;
-  }): string {
-    return `[AI-GENERATED DRAFT SUMMARY - FOR CLINICIAN REVIEW ONLY]
+  }): Promise<string> {
+    const geminiText = await this.callGemini(
+      `Generate a concise clinical SOAP note draft from: symptoms="${clinicalNotes.symptoms || ''}", examination="${clinicalNotes.examination || ''}", diagnosis="${clinicalNotes.diagnosis || ''}", plan="${clinicalNotes.plan || ''}". ` +
+      `Mark clearly as AI DRAFT for clinician review. Do not present as final.`
+    );
+    if (geminiText) return geminiText;
+    return `[TEMPLATE DEMO DRAFT - FOR CLINICIAN REVIEW ONLY]
 Patient presented with complaints of: ${clinicalNotes.symptoms || 'None recorded'}.
-Key examination findings: ${clinicalNotes.examination || 'Unremarkable'}.
+Key examination findings: ${clinicalNotes.examination || 'Not provided'}.
 Working clinical assessment: ${clinicalNotes.diagnosis || 'Under evaluation'}.
 Outlined management plan: ${clinicalNotes.plan || 'Routine care and monitoring'}.
-*Draft prepared for clinician signature. Not an autonomous medical decision.*`;
+*This template is not AI-generated or a clinical decision. Review and replace it before use.*`;
   }
 }

@@ -3,10 +3,13 @@ import { z } from 'zod';
 import { VerificationCase } from '../models/VerificationCase';
 import { Organization } from '../models/Organization';
 import { DoctorProfile } from '../models/DoctorProfile';
+import { Membership } from '../models/Membership';
 import { authenticate, AuthRequest } from '../middlewares/auth';
 import { requireRole } from '../middlewares/rbac';
 import { validateBody } from '../middlewares/validate';
 import { logAuditEvent } from '../services/auditService';
+import { sendError, ErrorCode } from '../utils/response';
+import { logger } from '../utils/logger';
 import mongoose from 'mongoose';
 
 const router = Router();
@@ -41,7 +44,8 @@ router.get(
         data: cases,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to fetch verification queue', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );
@@ -59,7 +63,7 @@ router.patch(
 
       const vCase = await VerificationCase.findById(id);
       if (!vCase) {
-        res.status(404).json({ success: false, error: 'Verification case not found.' });
+        sendError(res, 404, ErrorCode.NOT_FOUND, 'Verification case not found.');
         return;
       }
 
@@ -78,6 +82,13 @@ router.patch(
           org.verificationStatus = status;
           org.verificationNotes = decisionReason;
           await org.save();
+
+          if (status === 'verified' && org.ownerId) {
+            await Membership.updateOne(
+              { userId: org.ownerId, organizationId: org._id, status: 'invited' },
+              { $set: { status: 'active' } }
+            );
+          }
         }
       } else {
         const doc = await DoctorProfile.findById(vCase.targetId);
@@ -103,7 +114,8 @@ router.patch(
         data: vCase,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to record verification decision', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );

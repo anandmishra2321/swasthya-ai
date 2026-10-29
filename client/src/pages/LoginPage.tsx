@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { Activity, AlertCircle, Lock, Mail, Sparkles, UserCheck } from 'lucide-react';
+import { Activity, AlertCircle, Lock, Mail, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { getDashboardPath } from '../config/roles';
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -23,36 +24,16 @@ export const LoginPage: React.FC = () => {
     try {
       const user = await login(email, password);
       const redirect = searchParams.get('redirect');
-      if (redirect) {
+      // Only honour same-app relative redirects, never an absolute URL.
+      if (redirect && redirect.startsWith('/') && !redirect.startsWith('//')) {
         navigate(redirect);
       } else {
-        routeUser(user.role);
+        navigate(getDashboardPath(user.role));
       }
     } catch (err: any) {
       setError(err.message || 'Invalid email or password.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const routeUser = (role: string) => {
-    switch (role) {
-      case 'patient': navigate('/dashboard/patient'); break;
-      case 'hospital_doctor':
-      case 'private_doctor':
-      case 'homeopathy_doctor': navigate('/dashboard/doctor'); break;
-      case 'hospital_admin':
-      case 'bed_manager': navigate('/dashboard/hospital'); break;
-      case 'hospital_receptionist':
-      case 'clinic_receptionist': navigate('/dashboard/receptionist'); break;
-      case 'medical_store_owner':
-      case 'pharmacist': navigate('/dashboard/pharmacy'); break;
-      case 'lab_admin':
-      case 'lab_tech': navigate('/dashboard/lab'); break;
-      case 'verification_admin':
-      case 'platform_super_admin':
-      case 'public_health_admin': navigate('/dashboard/admin'); break;
-      default: navigate('/dashboard/patient');
     }
   };
 
@@ -65,7 +46,7 @@ export const LoginPage: React.FC = () => {
     <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200 shadow-xl space-y-6">
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 to-teal-400 text-white flex items-center justify-center mx-auto shadow-md shadow-teal-500/20">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white flex items-center justify-center mx-auto shadow-md shadow-indigo-500/20">
             <Activity className="w-7 h-7" />
           </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Sign in to Swasthya AI</h1>
@@ -92,7 +73,7 @@ export const LoginPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="e.g. patient@swasthya.demo"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-teal-500 font-medium"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-indigo-500 font-medium"
               />
             </div>
           </div>
@@ -107,7 +88,7 @@ export const LoginPage: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-teal-500 font-medium"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-indigo-500 font-medium"
               />
             </div>
           </div>
@@ -115,7 +96,7 @@ export const LoginPage: React.FC = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-sm shadow-md transition-all disabled:opacity-50"
+            className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow-md transition-all disabled:opacity-50"
           >
             {loading ? 'Authenticating...' : 'Sign In'}
           </button>
@@ -125,7 +106,7 @@ export const LoginPage: React.FC = () => {
         <div className="pt-4 border-t border-slate-100 space-y-2">
           <div className="flex items-center justify-between text-[11px] text-slate-500 font-semibold">
             <span className="flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+              <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
               Quick Fill Demo Accounts:
             </span>
             <span className="font-mono text-[10px] text-slate-400">Password123!</span>
@@ -135,39 +116,46 @@ export const LoginPage: React.FC = () => {
             <button
               type="button"
               onClick={() => fillDemo('patient@swasthya.demo')}
-              className="px-2 py-1.5 text-[11px] font-medium rounded-lg bg-slate-50 hover:bg-teal-50 text-slate-700 border border-slate-200 transition-colors truncate"
+              className="px-2 py-1.5 text-[11px] font-medium rounded-lg bg-slate-50 hover:bg-indigo-50 text-slate-700 border border-slate-200 transition-colors truncate"
             >
               Patient (Rahul)
             </button>
             <button
               type="button"
               onClick={() => fillDemo('doctor.sharma@swasthya.demo')}
-              className="px-2 py-1.5 text-[11px] font-medium rounded-lg bg-slate-50 hover:bg-teal-50 text-slate-700 border border-slate-200 transition-colors truncate"
+              className="px-2 py-1.5 text-[11px] font-medium rounded-lg bg-slate-50 hover:bg-indigo-50 text-slate-700 border border-slate-200 transition-colors truncate"
             >
               Hospital Doctor
             </button>
             <button
               type="button"
               onClick={() => fillDemo('hospital.admin@swasthya.demo')}
-              className="px-2 py-1.5 text-[11px] font-medium rounded-lg bg-slate-50 hover:bg-teal-50 text-slate-700 border border-slate-200 transition-colors truncate"
+              className="px-2 py-1.5 text-[11px] font-medium rounded-lg bg-slate-50 hover:bg-indigo-50 text-slate-700 border border-slate-200 transition-colors truncate"
             >
               Hospital Admin
             </button>
             <button
               type="button"
               onClick={() => fillDemo('pharmacy.owner@swasthya.demo')}
-              className="px-2 py-1.5 text-[11px] font-medium rounded-lg bg-slate-50 hover:bg-teal-50 text-slate-700 border border-slate-200 transition-colors truncate"
+              className="px-2 py-1.5 text-[11px] font-medium rounded-lg bg-slate-50 hover:bg-indigo-50 text-slate-700 border border-slate-200 transition-colors truncate"
             >
               Pharmacy Owner
             </button>
           </div>
         </div>
 
-        <div className="text-center text-xs text-slate-500 pt-2">
-          New patient?{' '}
-          <Link to="/register" className="font-bold text-teal-600 hover:text-teal-700 underline">
-            Create an account
-          </Link>
+        <div className="text-center text-xs text-slate-500 pt-2 space-y-2">
+          <div>
+            <Link to="/forgot-password" className="font-semibold text-indigo-600 hover:text-indigo-700 underline">
+              Forgot your password?
+            </Link>
+          </div>
+          <div>
+            New patient?{' '}
+            <Link to="/register" className="font-bold text-indigo-600 hover:text-indigo-700 underline">
+              Create an account
+            </Link>
+          </div>
         </div>
       </div>
     </div>

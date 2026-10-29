@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 import { env } from '../config/env';
 import { User, IUser, UserRole } from '../models/User';
 import { Membership } from '../models/Membership';
+import { sendError, ErrorCode } from '../utils/response';
 import mongoose from 'mongoose';
 
 export interface AuthRequest extends Request {
@@ -37,27 +38,32 @@ export function generateTokens(user: IUser, activeWorkspaceId?: string) {
   return { accessToken, refreshToken };
 }
 
+export const requireAuth = async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  return authenticate(req, res, next);
+};
+
 export async function authenticate(req: AuthRequest, res: Response, next: NextFunction): Promise<void> {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    res.status(401).json({
-      success: false,
-      error: 'Authentication required. Please sign in to access this resource.',
-    });
+    sendError(res, 401, ErrorCode.UNAUTHENTICATED, 'Authentication required. Please sign in to access this resource.');
     return;
   }
 
   const token = authHeader.split(' ')[1];
 
+  let decoded: JwtPayload;
   try {
-    const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+    decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
+  } catch {
+    sendError(res, 401, ErrorCode.UNAUTHENTICATED, 'Session expired or invalid token. Please sign in again.');
+    return;
+  }
+
+  try {
     const user = await User.findById(decoded.userId);
 
     if (!user) {
-      res.status(401).json({
-        success: false,
-        error: 'User not found or account has been deactivated.',
-      });
+      sendError(res, 401, ErrorCode.UNAUTHENTICATED, 'User not found or account has been deactivated.');
       return;
     }
 
@@ -83,11 +89,7 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
     }
 
     next();
-  } catch (err: any) {
-    res.status(401).json({
-      success: false,
-      error: 'Session expired or invalid token. Please sign in again.',
-    });
-    return;
+  } catch (err) {
+    next(err);
   }
 }

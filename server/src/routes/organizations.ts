@@ -2,13 +2,19 @@ import { Router, Response } from 'express';
 import { z } from 'zod';
 import { Organization } from '../models/Organization';
 import { Membership } from '../models/Membership';
+import { OrganizationInvitation } from '../models/OrganizationInvitation';
+import { VerificationCase } from '../models/VerificationCase';
 import { User } from '../models/User';
 import { BedInventory } from '../models/BedInventory';
 import { authenticate, AuthRequest } from '../middlewares/auth';
 import { requireRole, requireOrganizationAccess } from '../middlewares/rbac';
 import { validateBody } from '../middlewares/validate';
 import { logAuditEvent } from '../services/auditService';
+import { sendError, ErrorCode } from '../utils/response';
+import { logger } from '../utils/logger';
+import { env } from '../config/env';
 import mongoose from 'mongoose';
+import crypto from 'crypto';
 
 const router = Router();
 
@@ -106,7 +112,8 @@ router.get('/', async (req: any, res: Response): Promise<void> => {
       data: orgsWithDetails,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to list organizations', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -115,7 +122,7 @@ router.get('/:id', async (req: any, res: Response): Promise<void> => {
   try {
     const org = await Organization.findById(req.params.id);
     if (!org) {
-      res.status(404).json({ success: false, error: 'Organization not found.' });
+      sendError(res, 404, ErrorCode.NOT_FOUND, 'Organization not found.');
       return;
     }
 
@@ -132,7 +139,8 @@ router.get('/:id', async (req: any, res: Response): Promise<void> => {
       },
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to fetch organization', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -147,15 +155,34 @@ router.post('/', authenticate, validateBody(createOrgSchema), async (req: AuthRe
       ownerId: user._id,
       isVerified: false,
       verificationStatus: 'pending',
-      isDemo: true,
+      isDemo: user.isDemoAccount,
     });
 
-    // Automatically add creator as admin/owner membership
+    // The owner becomes an active administrator only after organization verification.
     await Membership.create({
       userId: user._id,
       organizationId: organization._id,
       role: orgData.type === 'hospital' ? 'hospital_admin' : orgData.type === 'medical_store' ? 'store_owner' : 'clinic_admin',
-      status: 'active',
+      status: 'invited',
+    });
+
+    const targetType = orgData.type === 'hospital'
+      ? 'hospital'
+      : orgData.type === 'medical_store'
+        ? 'pharmacy'
+        : orgData.type === 'diagnostic_lab'
+          ? 'lab'
+          : orgData.type === 'emergency_provider'
+            ? 'ambulance'
+            : 'clinic';
+    await VerificationCase.create({
+      targetType,
+      targetId: organization._id,
+      targetName: organization.name,
+      submittedBy: user._id,
+      status: 'pending',
+      documents: [],
+      isDemo: user.isDemoAccount,
     });
 
     await logAuditEvent({
@@ -173,7 +200,8 @@ router.post('/', authenticate, validateBody(createOrgSchema), async (req: AuthRe
       data: organization,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to create organization', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -182,47 +210,47 @@ router.post(
   '/:organizationId/invite',
   authenticate,
   requireOrganizationAccess('organizationId'),
-  requireRole('hospital_admin', 'clinic_admin', 'store_owner', 'lab_admin', 'platform_super_admin'),
+  requireRole(
+    'hospital_admin',
+    'private_clinic_admin',
+    'homeopathy_clinic_admin',
+    'medical_store_owner',
+    'lab_admin',
+    'platform_super_admin'
+  ),
   validateBody(inviteMemberSchema),
   async (req: AuthRequest, res: Response): Promise<void> => {
     try {
       const { organizationId } = req.params;
       const { email, role, department } = req.body;
+      const normalizedEmail = email.toLowerCase();
 
-      let targetUser = await User.findOne({ email });
-
-      // If user doesn't exist yet, we create an account with invited status
-      if (!targetUser) {
-        targetUser = await User.create({
-          name: email.split('@')[0],
-          email,
-          passwordHash: '$2a$10$demoHashedPasswordFallbackOnlyForInvitesDemo',
-          role: role as any,
-          isEmailVerified: false,
-          isDemoAccount: true,
-        });
+      if (env.NODE_ENV === 'production') {
+        sendError(
+          res,
+          503,
+          ErrorCode.INTEGRATION_NOT_CONFIGURED,
+          'Organization invitations are unavailable until a verified email delivery provider is configured.'
+        );
+        return;
       }
 
-      const existingMembership = await Membership.findOne({
-        userId: targetUser._id,
+      const invitationToken = crypto.randomBytes(32).toString('hex');
+      const now = new Date();
+      const expiresAt = new Date(now.getTime() + 48 * 60 * 60 * 1000);
+      await OrganizationInvitation.updateMany(
+        { organizationId, email: normalizedEmail, status: 'pending' },
+        { $set: { status: 'revoked' } }
+      );
+      const invitation = await OrganizationInvitation.create({
+        email: normalizedEmail,
         organizationId,
+        role,
+        department,
+        tokenHash: crypto.createHash('sha256').update(invitationToken).digest('hex'),
+        invitedBy: req.user!._id,
+        expiresAt,
       });
-
-      if (existingMembership) {
-        existingMembership.role = role;
-        existingMembership.department = department;
-        existingMembership.status = 'active';
-        await existingMembership.save();
-      } else {
-        await Membership.create({
-          userId: targetUser._id,
-          organizationId,
-          role,
-          department,
-          status: 'active',
-          invitedBy: req.user!._id,
-        });
-      }
 
       await logAuditEvent({
         actorId: req.user!._id as mongoose.Types.ObjectId,
@@ -230,15 +258,18 @@ router.post(
         actorRole: req.user!.role,
         action: 'MEMBER_INVITE',
         organizationId: new mongoose.Types.ObjectId(organizationId),
-        details: { targetEmail: email, assignedRole: role },
+        details: { targetEmail: normalizedEmail, assignedRole: role, invitationId: invitation._id },
       });
 
-      res.status(200).json({
+      res.status(201).json({
         success: true,
-        message: `Staff member ${email} invited and assigned role ${role} successfully.`,
+        message: 'Invitation created. Share this one-time link only with the intended recipient.',
+        invitationToken,
+        expiresAt,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to invite organization member', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );
@@ -258,7 +289,8 @@ router.get(
         data: members,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to list organization members', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );

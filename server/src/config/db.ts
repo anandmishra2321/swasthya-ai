@@ -12,13 +12,17 @@ export async function connectDB(): Promise<typeof mongoose> {
       const conn = await mongoose.connect(uri);
       console.log(`[DB] Successfully connected to MongoDB at: ${conn.connection.host}`);
       return conn;
-    } catch (err: any) {
-      console.warn(`[DB] Warning: Failed to connect to configured MONGODB_URI: ${err.message}`);
-      console.log(`[DB] Falling back to embedded in-memory MongoDB for local execution...`);
+    } catch {
+      console.error('[DB] Configured MongoDB connection failed. Check MONGODB_URI and database availability.');
+      throw new Error('Configured MongoDB connection failed.');
     }
   }
 
-  // Fallback to MongoMemoryServer
+  if (env.NODE_ENV === 'production') {
+    throw new Error('MONGODB_URI is required in production; refusing to start with an in-memory database.');
+  }
+
+  // The embedded database is reserved for local development and tests.
   try {
     const { MongoMemoryServer } = await import('mongodb-memory-server');
     memoryServer = await MongoMemoryServer.create();

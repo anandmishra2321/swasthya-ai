@@ -39,12 +39,12 @@ export const WorkspaceSwitcherModal: React.FC<Props> = ({ isOpen, onClose }) => 
             onClick={() => handleSelect(null)}
             className={`w-full text-left p-3.5 rounded-xl border flex items-center justify-between transition-all ${
               !user?.activeWorkspaceId
-                ? 'border-teal-600 bg-teal-50/60 ring-1 ring-teal-600'
+                ? 'border-indigo-600 bg-indigo-50/60 ring-1 ring-indigo-600'
                 : 'border-slate-200 hover:bg-slate-50'
             }`}
           >
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg bg-teal-100 text-teal-700 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center">
                 <User className="w-5 h-5" />
               </div>
               <div>
@@ -52,7 +52,7 @@ export const WorkspaceSwitcherModal: React.FC<Props> = ({ isOpen, onClose }) => 
                 <div className="text-xs text-slate-500 capitalize">Personal Account ({user?.role.replace(/_/g, ' ')})</div>
               </div>
             </div>
-            {!user?.activeWorkspaceId && <Check className="w-4 h-4 text-teal-600" />}
+            {!user?.activeWorkspaceId && <Check className="w-4 h-4 text-indigo-600" />}
           </button>
 
           {/* Affiliated workspaces */}
@@ -64,7 +64,7 @@ export const WorkspaceSwitcherModal: React.FC<Props> = ({ isOpen, onClose }) => 
                 onClick={() => handleSelect(ws.organizationId)}
                 className={`w-full text-left p-3.5 rounded-xl border flex items-center justify-between transition-all ${
                   isCurrent
-                    ? 'border-teal-600 bg-teal-50/60 ring-1 ring-teal-600'
+                    ? 'border-indigo-600 bg-indigo-50/60 ring-1 ring-indigo-600'
                     : 'border-slate-200 hover:bg-slate-50'
                 }`}
               >
@@ -79,7 +79,7 @@ export const WorkspaceSwitcherModal: React.FC<Props> = ({ isOpen, onClose }) => 
                     </div>
                   </div>
                 </div>
-                {isCurrent && <Check className="w-4 h-4 text-teal-600" />}
+                {isCurrent && <Check className="w-4 h-4 text-indigo-600" />}
               </button>
             );
           })}

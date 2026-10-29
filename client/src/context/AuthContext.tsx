@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { User, WorkspaceItem } from '../types';
-import { api, ApiError } from '../services/api';
+import {
+  api,
+  TOKEN_KEY,
+  REFRESH_TOKEN_KEY,
+  WORKSPACE_KEY,
+  SESSION_EXPIRED_EVENT,
+} from '../services/api';
 
 interface AuthContextType {
   user: User | null;
@@ -9,7 +15,7 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<User>;
-  logout: () => void;
+  logout: () => Promise<void>;
   switchWorkspace: (orgId: string | null) => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -21,7 +27,7 @@ const AuthContext = createContext<AuthContextType>({
   token: null,
   isLoading: true,
   login: async () => { throw new Error('Not implemented'); },
-  logout: () => {},
+  logout: async () => {},
   switchWorkspace: async () => {},
   refreshUser: async () => {},
 });
@@ -29,15 +35,25 @@ const AuthContext = createContext<AuthContextType>({
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [workspaces, setWorkspaces] = useState<WorkspaceItem[]>([]);
-  const [token, setToken] = useState<string | null>(() => localStorage.getItem('swasthya_token'));
+  const [token, setToken] = useState<string | null>(() => localStorage.getItem(TOKEN_KEY));
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   const activeWorkspace = workspaces.find((w) => w.organizationId === user?.activeWorkspaceId) || null;
 
+  /** Drops every trace of the local session without calling the API. */
+  const clearLocalSession = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(REFRESH_TOKEN_KEY);
+    localStorage.removeItem(WORKSPACE_KEY);
+    setToken(null);
+    setUser(null);
+    setWorkspaces([]);
+  }, []);
+
   const refreshUser = async () => {
-    const storedToken = localStorage.getItem('swasthya_token');
+    const storedToken = localStorage.getItem(TOKEN_KEY);
     if (!storedToken) {
-      setUser(null);
+      clearLocalSession();
       setIsLoading(false);
       return;
     }
@@ -50,9 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (err) {
       console.warn('[Auth] Failed to refresh user session:', err);
-      localStorage.removeItem('swasthya_token');
-      localStorage.removeItem('swasthya_workspace_id');
-      setUser(null);
+      clearLocalSession();
     } finally {
       setIsLoading(false);
     }
@@ -60,20 +74,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     refreshUser();
+    // The API client fires this when a session cannot be recovered by refresh.
+    window.addEventListener(SESSION_EXPIRED_EVENT, clearLocalSession);
+    return () => window.removeEventListener(SESSION_EXPIRED_EVENT, clearLocalSession);
   }, []);
 
   const login = async (email: string, password: string): Promise<User> => {
     const res: any = await api.post('/auth/login', { email, password });
     if (res.success && res.accessToken) {
-      localStorage.setItem('swasthya_token', res.accessToken);
+      localStorage.setItem(TOKEN_KEY, res.accessToken);
+      if (res.refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, res.refreshToken);
       setToken(res.accessToken);
       setUser(res.user);
       setWorkspaces(res.workspaces || []);
 
       if (res.user.activeWorkspaceId) {
-        localStorage.setItem('swasthya_workspace_id', res.user.activeWorkspaceId);
+        localStorage.setItem(WORKSPACE_KEY, res.user.activeWorkspaceId);
       } else {
-        localStorage.removeItem('swasthya_workspace_id');
+        localStorage.removeItem(WORKSPACE_KEY);
       }
 
       return res.user;
@@ -81,23 +99,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     throw new Error('Authentication failed');
   };
 
-  const logout = () => {
-    localStorage.removeItem('swasthya_token');
-    localStorage.removeItem('swasthya_workspace_id');
-    setToken(null);
-    setUser(null);
-    setWorkspaces([]);
+  const logout = async (): Promise<void> => {
+    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
+    const activeToken = localStorage.getItem(TOKEN_KEY);
+
+    // Clear locally first so the UI never lingers in a signed-in state.
+    clearLocalSession();
+
+    if (activeToken && refreshToken) {
+      try {
+        await api.post('/auth/logout', { refreshToken }, { auth: false, headers: { Authorization: `Bearer ${activeToken}` } });
+      } catch (err) {
+        console.warn('[Auth] Server-side logout failed; local session already cleared.', err);
+      }
+    }
   };
 
   const switchWorkspace = async (orgId: string | null) => {
     const res: any = await api.post('/auth/switch-workspace', { organizationId: orgId });
     if (res.success && res.accessToken) {
-      localStorage.setItem('swasthya_token', res.accessToken);
+      localStorage.setItem(TOKEN_KEY, res.accessToken);
+      if (res.refreshToken) localStorage.setItem(REFRESH_TOKEN_KEY, res.refreshToken);
       setToken(res.accessToken);
       if (orgId) {
-        localStorage.setItem('swasthya_workspace_id', orgId);
+        localStorage.setItem(WORKSPACE_KEY, orgId);
       } else {
-        localStorage.removeItem('swasthya_workspace_id');
+        localStorage.removeItem(WORKSPACE_KEY);
       }
       await refreshUser();
     }

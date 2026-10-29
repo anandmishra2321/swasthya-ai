@@ -1,5 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { connectDB, disconnectDB } from '../config/db';
+import { env } from '../config/env';
 import {
   User,
   Organization,
@@ -17,9 +18,34 @@ import {
   AuditLog,
 } from '../models';
 
-export async function runSeed() {
+export interface SeedOptions {
+  /** Skip the internal connectDB() when the caller already holds a live connection. */
+  connect?: boolean;
+  /** Seed only when the database holds no users, so a populated database is never wiped. */
+  onlyIfEmpty?: boolean;
+  /** Explicitly clear local demo data before re-seeding. Never allowed in production. */
+  forceReset?: boolean;
+}
+
+export async function runSeed(options: SeedOptions = {}): Promise<boolean> {
+  const { connect = true, onlyIfEmpty = true, forceReset = false } = options;
+
+  if (env.NODE_ENV === 'production') {
+    throw new Error('Demo seeding and reset are disabled in production.');
+  }
+
   console.log('[Seed] Starting database demo seeding...');
-  await connectDB();
+  if (connect) {
+    await connectDB();
+  }
+
+  if (onlyIfEmpty && !forceReset && env.NODE_ENV !== 'test') {
+    const existingUsers = await User.estimatedDocumentCount();
+    if (existingUsers > 0) {
+      console.log(`[Seed] Skipped: database already holds ${existingUsers} user(s).`);
+      return false;
+    }
+  }
 
   // Clean collections
   await Promise.all([
@@ -847,10 +873,23 @@ export async function runSeed() {
   ]);
 
   console.log('[Seed] Demo database seeding completed successfully!');
+  return true;
+}
+
+/**
+ * Seeds the demo dataset into the *already connected* database, but only when it
+ * is completely empty. Used by the dev server so localhost boots with data,
+ * while an existing deployment is never overwritten.
+ */
+export async function seedIfEmpty(): Promise<boolean> {
+  return runSeed({ connect: false, onlyIfEmpty: true });
 }
 
 if (require.main === module) {
-  runSeed()
+  runSeed({
+    onlyIfEmpty: process.env.SEED_RESET !== 'true',
+    forceReset: process.env.SEED_RESET === 'true',
+  })
     .then(() => {
       console.log('[Seed] Finished. Disconnecting DB...');
       return disconnectDB();

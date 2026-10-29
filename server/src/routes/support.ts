@@ -3,6 +3,8 @@ import { z } from 'zod';
 import { SupportTicket } from '../models/SupportTicket';
 import { authenticate, AuthRequest } from '../middlewares/auth';
 import { validateBody } from '../middlewares/validate';
+import { sendError, ErrorCode } from '../utils/response';
+import { logger } from '../utils/logger';
 import mongoose from 'mongoose';
 
 const router = Router();
@@ -40,7 +42,8 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
       data: tickets,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to list support tickets', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -66,7 +69,8 @@ router.post('/', authenticate, validateBody(createTicketSchema), async (req: Aut
       data: ticket,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to create support ticket', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -78,7 +82,7 @@ router.post('/:id/reply', authenticate, validateBody(replyTicketSchema), async (
 
     const ticket = await SupportTicket.findById(id);
     if (!ticket) {
-      res.status(404).json({ success: false, error: 'Support ticket not found.' });
+      sendError(res, 404, ErrorCode.NOT_FOUND, 'Support ticket not found.');
       return;
     }
 
@@ -102,7 +106,8 @@ router.post('/:id/reply', authenticate, validateBody(replyTicketSchema), async (
       data: ticket,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to add support ticket reply', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 

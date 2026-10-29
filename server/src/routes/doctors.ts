@@ -4,6 +4,13 @@ import { User } from '../models/User';
 import { Organization } from '../models/Organization';
 import { authenticate, AuthRequest } from '../middlewares/auth';
 import { requireRole } from '../middlewares/rbac';
+import {
+  getDoctorDayAvailability,
+  isIsoDate,
+  dayOfWeekFor,
+} from '../services/availabilityService';
+import { sendError, ErrorCode } from '../utils/response';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -47,7 +54,8 @@ router.get('/', async (req: any, res: Response): Promise<void> => {
       data: filtered,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to search doctors', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -59,25 +67,65 @@ router.get('/:id', async (req: any, res: Response): Promise<void> => {
       .populate('organizationId', 'name type address phone operatingHours isVerified');
 
     if (!doctor) {
-      res.status(404).json({ success: false, error: 'Doctor profile not found.' });
+      sendError(res, 404, ErrorCode.NOT_FOUND, 'Doctor profile not found.');
       return;
     }
 
-    // Default slots for booking demo
-    const defaultTimeSlots = [
-      '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM', '11:00 AM', '11:30 AM',
-      '04:00 PM', '04:30 PM', '05:00 PM', '05:30 PM', '06:00 PM', '06:30 PM'
-    ];
+    // Availability is derived from the clinician's own published consultation
+    // hours and existing bookings — never a hardcoded list.
+    const today = new Date();
+    const todayIso = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(
+      today.getDate()
+    ).padStart(2, '0')}`;
+    const availability = await getDoctorDayAvailability(doctor, todayIso);
 
     res.json({
       success: true,
       data: {
         ...doctor.toObject(),
-        availableSlots: defaultTimeSlots,
+        availabilityToday: availability,
+        availableSlots: availability.slots.filter((s) => s.status === 'available').map((s) => s.time),
       },
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to load doctor profile', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
+  }
+});
+
+// GET /api/v1/doctors/:id/availability?date=YYYY-MM-DD - Real slot grid
+router.get('/:id/availability', async (req: any, res: Response): Promise<void> => {
+  try {
+    const { date } = req.query;
+
+    if (date !== undefined && !isIsoDate(date)) {
+      sendError(res, 400, ErrorCode.VALIDATION_FAILED, 'Query parameter "date" must be formatted YYYY-MM-DD.');
+      return;
+    }
+
+    const doctor = await DoctorProfile.findById(req.params.id);
+    if (!doctor) {
+      sendError(res, 404, ErrorCode.NOT_FOUND, 'Doctor profile not found.');
+      return;
+    }
+
+    const target = (date as string) || new Date().toISOString().slice(0, 10);
+    const availability = await getDoctorDayAvailability(doctor, target);
+
+    res.json({
+      success: true,
+      data: {
+        doctorId: doctor._id,
+        specialty: doctor.specialty,
+        ...availability,
+        note: availability.worksThisDay
+          ? 'Derived from the clinician\'s published consultation hours minus existing bookings.'
+          : `The clinician's published roster does not include ${dayOfWeekFor(target)}, so these slots are informational only.`,
+      },
+    });
+  } catch (err: any) {
+    logger.error('Failed to build doctor availability', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -111,7 +159,8 @@ router.put(
         data: profile,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to update doctor profile', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );

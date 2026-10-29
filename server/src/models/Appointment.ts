@@ -27,6 +27,12 @@ export interface IAppointment extends Document {
   notes?: string;
   statusHistory: IAppointmentStatusHistory[];
   isDemo: boolean;
+  // Payment fields
+  paymentStatus: 'pending' | 'paid' | 'failed' | 'refunded' | 'waived';
+  paymentId?: string;
+  paymentOrderId?: string;
+  paidAt?: Date;
+  consultationFee: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -85,8 +91,18 @@ const AppointmentSchema = new Schema<IAppointment>(
     ],
     isDemo: {
       type: Boolean,
-      default: true,
+      default: false,
     },
+    // Payment fields
+    paymentStatus: {
+      type: String,
+      enum: ['pending', 'paid', 'failed', 'refunded', 'waived'],
+      default: 'pending',
+    },
+    paymentId: String,
+    paymentOrderId: String,
+    paidAt: Date,
+    consultationFee: { type: Number, default: 0 },
   },
   {
     timestamps: true,

@@ -123,7 +123,7 @@ export const PharmacyDashboard: React.FC = () => {
 
         <button
           onClick={() => setAddModalOpen(true)}
-          className="px-4 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
+          className="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl shadow-xs transition-colors flex items-center gap-1.5"
         >
           <Plus className="w-4 h-4" />
           Add Medicine Batch
@@ -135,12 +135,12 @@ export const PharmacyDashboard: React.FC = () => {
         <div
           onClick={() => setFilterMode('all')}
           className={`p-5 rounded-2xl border cursor-pointer transition-all ${
-            filterMode === 'all' ? 'border-teal-600 bg-teal-50/40 shadow-2xs' : 'border-slate-200 bg-white hover:bg-slate-50'
+            filterMode === 'all' ? 'border-indigo-600 bg-indigo-50/40 shadow-2xs' : 'border-slate-200 bg-white hover:bg-slate-50'
           }`}
         >
           <div className="text-xs font-bold text-slate-600 uppercase tracking-wider">Total Active Batches</div>
           <div className="text-2xl font-black text-slate-900 mt-1">{inventory.length}</div>
-          <div className="text-[11px] text-teal-700 font-semibold mt-1">Live in store inventory</div>
+          <div className="text-[11px] text-indigo-700 font-semibold mt-1">Live in store inventory</div>
         </div>
 
         <div
@@ -180,14 +180,14 @@ export const PharmacyDashboard: React.FC = () => {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Filter by medicine name, generic salt composition, or batch number..."
-          className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm outline-none focus:border-teal-500 shadow-2xs"
+          className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-300 bg-white text-sm outline-none focus:border-indigo-500 shadow-2xs"
         />
       </div>
 
       {/* Inventory Table */}
       <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xs space-y-4">
         <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
-          <Pill className="w-5 h-5 text-teal-600" />
+          <Pill className="w-5 h-5 text-indigo-600" />
           Medicine Stock Catalogue
         </h2>
 
@@ -230,7 +230,7 @@ export const PharmacyDashboard: React.FC = () => {
                     </td>
                     <td className="px-4 py-3.5 font-bold text-slate-800">₹{item.price.toFixed(2)}</td>
                     <td className="px-4 py-3.5">
-                      <span className={`text-sm font-extrabold ${item.isLowStock ? 'text-rose-600' : 'text-teal-700'}`}>
+                      <span className={`text-sm font-extrabold ${item.isLowStock ? 'text-rose-600' : 'text-indigo-700'}`}>
                         {item.quantity}
                       </span>
                       {item.isLowStock && (
@@ -250,7 +250,7 @@ export const PharmacyDashboard: React.FC = () => {
                         </button>
                         <button
                           onClick={() => handleUpdateQuantity(item._id, item.quantity + 20)}
-                          className="w-7 h-7 bg-teal-50 hover:bg-teal-100 text-teal-800 font-bold rounded flex items-center justify-center text-xs"
+                          className="w-7 h-7 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 font-bold rounded flex items-center justify-center text-xs"
                           title="Restock 20 units"
                         >
                           +20
@@ -284,7 +284,7 @@ export const PharmacyDashboard: React.FC = () => {
                     value={medName}
                     onChange={(e) => setMedName(e.target.value)}
                     placeholder="e.g. Paracetamol 650mg (Dolo)"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-indigo-500"
                   />
                 </div>
                 <div>
@@ -295,7 +295,7 @@ export const PharmacyDashboard: React.FC = () => {
                     value={genericName}
                     onChange={(e) => setGenericName(e.target.value)}
                     placeholder="e.g. Paracetamol"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-indigo-500"
                   />
                 </div>
               </div>
@@ -309,7 +309,7 @@ export const PharmacyDashboard: React.FC = () => {
                     value={strength}
                     onChange={(e) => setStrength(e.target.value)}
                     placeholder="e.g. 650mg"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-indigo-500"
                   />
                 </div>
                 <div>
@@ -317,7 +317,7 @@ export const PharmacyDashboard: React.FC = () => {
                   <select
                     value={dosageForm}
                     onChange={(e) => setDosageForm(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none bg-white focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none bg-white focus:border-indigo-500"
                   >
                     <option value="tablet">Tablet</option>
                     <option value="syrup">Syrup</option>
@@ -335,7 +335,7 @@ export const PharmacyDashboard: React.FC = () => {
                     value={batchNumber}
                     onChange={(e) => setBatchNumber(e.target.value)}
                     placeholder="BAT-2024-001"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-teal-500 font-mono"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-indigo-500 font-mono"
                   />
                 </div>
               </div>
@@ -348,7 +348,7 @@ export const PharmacyDashboard: React.FC = () => {
                     required
                     value={expiryDate}
                     onChange={(e) => setExpiryDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-indigo-500"
                   />
                 </div>
                 <div>
@@ -359,7 +359,7 @@ export const PharmacyDashboard: React.FC = () => {
                     required
                     value={quantity}
                     onChange={(e) => setQuantity(parseInt(e.target.value) || 0)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-indigo-500"
                   />
                 </div>
                 <div>
@@ -371,7 +371,7 @@ export const PharmacyDashboard: React.FC = () => {
                     required
                     value={price}
                     onChange={(e) => setPrice(parseFloat(e.target.value) || 0)}
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-teal-500"
+                    className="w-full px-3 py-2 rounded-xl border border-slate-300 font-medium outline-none focus:border-indigo-500"
                   />
                 </div>
               </div>
@@ -387,7 +387,7 @@ export const PharmacyDashboard: React.FC = () => {
                 <button
                   type="submit"
                   disabled={addLoading}
-                  className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl shadow-xs"
+                  className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl shadow-xs"
                 >
                   {addLoading ? 'Adding...' : 'Save Medicine Batch'}
                 </button>

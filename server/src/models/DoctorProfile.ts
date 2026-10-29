@@ -43,8 +43,11 @@ const DoctorProfileSchema = new Schema<IDoctorProfile>(
       default: [],
     },
     registrationNumber: {
+      // Intentionally not required: a self-registered clinician has no
+      // registration number until they submit verifiable credentials.
       type: String,
-      required: true,
+      default: '',
+      trim: true,
     },
     experienceYears: {
       type: Number,

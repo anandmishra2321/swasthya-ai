@@ -11,7 +11,7 @@ export const LanguageToggle: React.FC = () => {
         onClick={() => setLang('en')}
         className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1 ${
           lang === 'en'
-            ? 'bg-white text-teal-700 shadow-sm'
+            ? 'bg-white text-indigo-700 shadow-sm'
             : 'text-slate-600 hover:text-slate-900'
         }`}
       >
@@ -21,7 +21,7 @@ export const LanguageToggle: React.FC = () => {
         onClick={() => setLang('hi')}
         className={`px-2.5 py-1 rounded-md transition-all flex items-center gap-1 ${
           lang === 'hi'
-            ? 'bg-white text-teal-700 shadow-sm font-medium'
+            ? 'bg-white text-indigo-700 shadow-sm font-medium'
             : 'text-slate-600 hover:text-slate-900'
         }`}
       >

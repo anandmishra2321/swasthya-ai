@@ -8,6 +8,8 @@ import { PharmacyInventoryItem } from '../models/PharmacyInventoryItem';
 import { LabOrder } from '../models/LabOrder';
 import { authenticate, AuthRequest } from '../middlewares/auth';
 import { requireRole } from '../middlewares/rbac';
+import { sendError, ErrorCode } from '../utils/response';
+import { logger } from '../utils/logger';
 
 const router = Router();
 
@@ -91,7 +93,8 @@ router.get(
         },
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to compute public health analytics', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );

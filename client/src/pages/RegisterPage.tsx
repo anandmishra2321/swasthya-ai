@@ -10,6 +10,7 @@ export const RegisterPage: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [preferredLanguage, setPreferredLanguage] = useState<'en' | 'hi'>('en');
+  const [role, setRole] = useState<string>('patient');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,8 +25,8 @@ export const RegisterPage: React.FC = () => {
         email,
         phone,
         password,
-        role: 'patient',
         preferredLanguage,
+        role,
       });
 
       if (res.success) {
@@ -43,7 +44,7 @@ export const RegisterPage: React.FC = () => {
     <div className="min-h-[85vh] flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full bg-white rounded-3xl p-8 border border-slate-200 shadow-xl space-y-6">
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-teal-600 to-teal-400 text-white flex items-center justify-center mx-auto shadow-md shadow-teal-500/20">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-indigo-600 to-indigo-400 text-white flex items-center justify-center mx-auto shadow-md shadow-indigo-500/20">
             <Activity className="w-7 h-7" />
           </div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Create Patient Account</h1>
@@ -70,7 +71,7 @@ export const RegisterPage: React.FC = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Ramesh Kumar"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-teal-500 font-medium"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-indigo-500 font-medium"
               />
             </div>
           </div>
@@ -85,7 +86,7 @@ export const RegisterPage: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ramesh@example.com"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-teal-500 font-medium"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-indigo-500 font-medium"
               />
             </div>
           </div>
@@ -99,25 +100,46 @@ export const RegisterPage: React.FC = () => {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+91 98260 00000"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-teal-500 font-medium"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-indigo-500 font-medium"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Password (min 6 characters)</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Password (min 12 characters)</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
               <input
                 type="password"
                 required
-                minLength={6}
+                minLength={12}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-teal-500 font-medium"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-indigo-500 font-medium"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Account Role (dev/demo)</label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm outline-none focus:border-indigo-500 font-medium bg-white"
+            >
+              <option value="patient">Patient</option>
+              <option value="hospital_doctor">Hospital Doctor</option>
+              <option value="private_doctor">Private Doctor</option>
+              <option value="homeopathy_doctor">Homeopathy Doctor</option>
+              <option value="hospital_admin">Hospital Admin</option>
+              <option value="hospital_receptionist">Receptionist</option>
+              <option value="medical_store_owner">Pharmacy Owner</option>
+              <option value="lab_admin">Lab Admin</option>
+              <option value="nurse">Nurse</option>
+              <option value="bed_manager">Bed Manager</option>
+            </select>
+            <p className="text-[10px] text-slate-400 mt-1">Role selection works in development/demo mode only.</p>
           </div>
 
           <div>
@@ -129,7 +151,7 @@ export const RegisterPage: React.FC = () => {
                   name="lang"
                   checked={preferredLanguage === 'en'}
                   onChange={() => setPreferredLanguage('en')}
-                  className="text-teal-600 focus:ring-teal-500"
+                  className="text-indigo-600 focus:ring-indigo-500"
                 />
                 English
               </label>
@@ -139,7 +161,7 @@ export const RegisterPage: React.FC = () => {
                   name="lang"
                   checked={preferredLanguage === 'hi'}
                   onChange={() => setPreferredLanguage('hi')}
-                  className="text-teal-600 focus:ring-teal-500"
+                  className="text-indigo-600 focus:ring-indigo-500"
                 />
                 हिंदी (Hindi)
               </label>
@@ -150,7 +172,7 @@ export const RegisterPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-xl text-sm shadow-md transition-all disabled:opacity-50"
+              className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-xl text-sm shadow-md transition-all disabled:opacity-50"
             >
               {loading ? 'Creating Account...' : 'Register'}
             </button>
@@ -159,7 +181,7 @@ export const RegisterPage: React.FC = () => {
 
         <div className="text-center text-xs text-slate-500 pt-2 border-t border-slate-100">
           Already registered?{' '}
-          <Link to="/login" className="font-bold text-teal-600 hover:text-teal-700 underline">
+          <Link to="/login" className="font-bold text-indigo-600 hover:text-indigo-700 underline">
             Sign In
           </Link>
         </div>

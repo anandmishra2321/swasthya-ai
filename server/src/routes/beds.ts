@@ -6,6 +6,9 @@ import { authenticate, AuthRequest } from '../middlewares/auth';
 import { requireRole, requireOrganizationAccess } from '../middlewares/rbac';
 import { validateBody } from '../middlewares/validate';
 import { logAuditEvent } from '../services/auditService';
+import { sendError, ErrorCode } from '../utils/response';
+import { emitToOrg } from '../services/socketService';
+import { logger } from '../utils/logger';
 import mongoose from 'mongoose';
 
 const router = Router();
@@ -52,7 +55,8 @@ router.get('/', async (req: any, res: Response): Promise<void> => {
       data: enrichedBeds,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to list bed inventory', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -94,7 +98,8 @@ router.get('/summary', async (req: any, res: Response): Promise<void> => {
       data: summary,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to build bed availability summary', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -102,6 +107,7 @@ router.get('/summary', async (req: any, res: Response): Promise<void> => {
 router.put(
   '/:id',
   authenticate,
+  requireRole('hospital_admin', 'bed_manager', 'nurse', 'hospital_staff', 'platform_super_admin'),
   validateBody(updateBedSchema),
   async (req: AuthRequest, res: Response): Promise<void> => {
     try {
@@ -110,16 +116,52 @@ router.put(
 
       const bed = await BedInventory.findById(id);
       if (!bed) {
-        res.status(404).json({ success: false, error: 'Bed inventory record not found.' });
+        sendError(res, 404, ErrorCode.NOT_FOUND, 'Bed inventory record not found.');
         return;
+      }
+
+      // Bed capacity is organisation-scoped public health data: staff may only
+      // update the wards of the organisation they are currently working in.
+      const isPlatformAdmin = req.user!.role === 'platform_super_admin';
+      if (!isPlatformAdmin) {
+        if (!req.activeWorkspaceId) {
+          sendError(
+            res,
+            403,
+            ErrorCode.FORBIDDEN,
+            'Access denied: select an organisation workspace before updating bed capacity.'
+          );
+          return;
+        }
+        if (bed.organizationId.toString() !== req.activeWorkspaceId.toString()) {
+          await logAuditEvent({
+            actorId: req.user!._id as mongoose.Types.ObjectId,
+            actorEmail: req.user!.email,
+            actorRole: req.user!.role,
+            action: 'BED_STATUS_UPDATE_DENIED',
+            targetType: 'BedInventory',
+            targetId: bed._id.toString(),
+            organizationId: bed.organizationId as mongoose.Types.ObjectId,
+            details: { reason: 'cross_organisation', activeWorkspaceId: req.activeWorkspaceId.toString() },
+          });
+          sendError(
+            res,
+            403,
+            ErrorCode.FORBIDDEN,
+            'Access denied: this bed inventory belongs to a different organisation.'
+          );
+          return;
+        }
       }
 
       // Validate capacity consistency
       if (available + occupied + cleaning + reserved > totalCapacity) {
-        res.status(400).json({
-          success: false,
-          error: `Capacity Inconsistency: Sum of available (${available}) + occupied (${occupied}) + cleaning (${cleaning}) + reserved (${reserved}) exceeds total capacity (${totalCapacity}).`,
-        });
+        sendError(
+          res,
+          400,
+          ErrorCode.VALIDATION_FAILED,
+          `Capacity Inconsistency: Sum of available (${available}) + occupied (${occupied}) + cleaning (${cleaning}) + reserved (${reserved}) exceeds total capacity (${totalCapacity}).`
+        );
         return;
       }
 
@@ -133,6 +175,8 @@ router.put(
       bed.lastUpdatedAt = new Date();
 
       await bed.save();
+
+      emitToOrg(String(bed.organizationId), 'beds:updated', { bed });
 
       await logAuditEvent({
         actorId: req.user!._id as mongoose.Types.ObjectId,
@@ -157,7 +201,8 @@ router.put(
         data: bed,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to update bed status', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );
@@ -171,8 +216,43 @@ router.post(
     try {
       const { organizationId, ward, category, totalCapacity, available, occupied } = req.body;
 
+      const targetOrganizationId = organizationId || req.activeWorkspaceId;
+
+      if (!targetOrganizationId) {
+        sendError(
+          res,
+          400,
+          ErrorCode.VALIDATION_FAILED,
+          'An organizationId is required, or select an organisation workspace first.'
+        );
+        return;
+      }
+
+      // Staff may only publish inventory for the organisation they work in.
+      if (
+        req.user!.role !== 'platform_super_admin' &&
+        targetOrganizationId.toString() !== req.activeWorkspaceId?.toString()
+      ) {
+        await logAuditEvent({
+          actorId: req.user!._id as mongoose.Types.ObjectId,
+          actorEmail: req.user!.email,
+          actorRole: req.user!.role,
+          action: 'BED_STATUS_UPDATE_DENIED',
+          targetType: 'Organization',
+          targetId: targetOrganizationId.toString(),
+          details: { reason: 'cross_organisation_create', activeWorkspaceId: req.activeWorkspaceId?.toString() },
+        });
+        sendError(
+          res,
+          403,
+          ErrorCode.FORBIDDEN,
+          'Access denied: you cannot publish bed inventory for a different organisation.'
+        );
+        return;
+      }
+
       const bed = await BedInventory.create({
-        organizationId: organizationId || req.activeWorkspaceId,
+        organizationId: targetOrganizationId,
         ward,
         category: category as BedCategory,
         totalCapacity,
@@ -188,7 +268,8 @@ router.post(
         data: bed,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to initialize bed ward', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );

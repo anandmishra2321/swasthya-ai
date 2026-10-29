@@ -5,6 +5,8 @@ import { authenticate, AuthRequest } from '../middlewares/auth';
 import { requireRole } from '../middlewares/rbac';
 import { validateBody } from '../middlewares/validate';
 import { logAuditEvent } from '../services/auditService';
+import { sendError, ErrorCode } from '../utils/response';
+import { logger } from '../utils/logger';
 import mongoose from 'mongoose';
 
 const router = Router();
@@ -77,7 +79,8 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
       data: finalItems,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to list inventory items', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -93,7 +96,7 @@ router.post(
       const organizationId = req.activeWorkspaceId;
 
       if (!organizationId) {
-        res.status(400).json({ success: false, error: 'Please switch to an active medical store workspace.' });
+        sendError(res, 400, ErrorCode.VALIDATION_FAILED, 'Please switch to an active medical store workspace.');
         return;
       }
 
@@ -121,7 +124,8 @@ router.post(
         data: item,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to add inventory item', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );
@@ -137,7 +141,7 @@ router.put(
       const item = await PharmacyInventoryItem.findById(req.params.id);
 
       if (!item) {
-        res.status(404).json({ success: false, error: 'Inventory item not found.' });
+        sendError(res, 404, ErrorCode.NOT_FOUND, 'Inventory item not found.');
         return;
       }
 
@@ -154,7 +158,8 @@ router.put(
         data: item,
       });
     } catch (err: any) {
-      res.status(500).json({ success: false, error: err.message });
+      logger.error('Failed to update inventory item', { error: err?.message });
+      sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
     }
   }
 );

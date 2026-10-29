@@ -6,6 +6,12 @@ import { Organization } from '../models/Organization';
 import { authenticate, AuthRequest } from '../middlewares/auth';
 import { validateBody } from '../middlewares/validate';
 import { logAuditEvent } from '../services/auditService';
+import { canManageAppointment } from '../services/accessControlService';
+import { checkRequestedSlot } from '../services/availabilityService';
+import { sendError, ErrorCode } from '../utils/response';
+import { emitToUser } from '../services/socketService';
+import { createPdfBuffer } from '../utils/pdf';
+import { logger } from '../utils/logger';
 import mongoose from 'mongoose';
 
 const router = Router();
@@ -71,7 +77,8 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response): Promise<v
       data: appointments,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to list appointments', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -82,38 +89,36 @@ router.post('/', authenticate, validateBody(createAppointmentSchema), async (req
     const patientId = req.user!._id;
 
     if (!mongoose.Types.ObjectId.isValid(doctorId)) {
-      res.status(400).json({ success: false, error: 'Invalid Doctor ID.' });
+      sendError(res, 400, ErrorCode.VALIDATION_FAILED, 'Invalid Doctor ID.');
       return;
     }
 
     const doctor = await DoctorProfile.findById(doctorId);
     if (!doctor) {
-      res.status(404).json({ success: false, error: 'Doctor not found.' });
+      sendError(res, 404, ErrorCode.NOT_FOUND, 'Doctor not found.');
       return;
     }
 
     const organizationId = doctor.organizationId;
     if (!organizationId) {
-      res.status(400).json({ success: false, error: 'Doctor has no affiliated organization/clinic.' });
+      sendError(res, 400, ErrorCode.VALIDATION_FAILED, 'Doctor has no affiliated organization/clinic.');
       return;
     }
 
-    // CRITICAL: Double booking check
-    // Check if there is already an active (not cancelled) appointment for this doctor on this date & timeSlot
-    const existingConflict = await Appointment.findOne({
-      doctorId: doctor._id,
-      appointmentDate,
-      timeSlot,
-      status: { $in: ['requested', 'confirmed', 'checked_in'] },
-    });
+    // Validate the requested slot against the clinician's real published hours
+    // and existing bookings, rather than accepting an arbitrary time string.
+    const slotCheck = await checkRequestedSlot(doctor, appointmentDate, timeSlot);
 
-    if (existingConflict) {
-      res.status(409).json({
-        success: false,
-        error: `Slot Conflict: Doctor is already booked for ${timeSlot} on ${appointmentDate}. Please choose a different time slot.`,
-      });
+    if (!slotCheck.ok) {
+      if (slotCheck.reason === 'already_booked') {
+        sendError(res, 409, ErrorCode.CONFLICT, slotCheck.message!);
+      } else {
+        sendError(res, 400, ErrorCode.VALIDATION_FAILED, slotCheck.message!);
+      }
       return;
     }
+
+    const canonicalSlot = slotCheck.canonicalSlot!;
 
     // Generate token number for the day
     const countForDay = await Appointment.countDocuments({
@@ -127,11 +132,12 @@ router.post('/', authenticate, validateBody(createAppointmentSchema), async (req
       doctorId: doctor._id,
       organizationId,
       appointmentDate,
-      timeSlot,
+      timeSlot: canonicalSlot,
       status: 'confirmed',
       reason,
       tokenNumber,
       notes,
+      consultationFee: doctor.consultationFee,
       statusHistory: [
         {
           status: 'confirmed',
@@ -140,7 +146,7 @@ router.post('/', authenticate, validateBody(createAppointmentSchema), async (req
           notes: 'Appointment initially confirmed',
         },
       ],
-      isDemo: true,
+      isDemo: req.user!.isDemoAccount,
     });
 
     await logAuditEvent({
@@ -151,7 +157,7 @@ router.post('/', authenticate, validateBody(createAppointmentSchema), async (req
       targetType: 'Appointment',
       targetId: appointment._id.toString(),
       organizationId: organizationId as mongoose.Types.ObjectId,
-      details: { doctorId, appointmentDate, timeSlot, tokenNumber },
+      details: { doctorId, appointmentDate, timeSlot: canonicalSlot, tokenNumber },
     });
 
     res.status(201).json({
@@ -160,7 +166,8 @@ router.post('/', authenticate, validateBody(createAppointmentSchema), async (req
       data: appointment,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to book appointment', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
@@ -172,16 +179,41 @@ router.patch('/:id/status', authenticate, validateBody(updateStatusSchema), asyn
 
     const appointment = await Appointment.findById(id);
     if (!appointment) {
-      res.status(404).json({ success: false, error: 'Appointment not found.' });
+      sendError(res, 404, ErrorCode.NOT_FOUND, 'Appointment not found.');
       return;
     }
 
-    // Role check: Patient can only cancel their own appointment.
-    // Doctor or Clinic/Hospital staff can update to checked_in, completed, no_show, cancelled.
-    const isPatient = (req.user!._id as mongoose.Types.ObjectId).toString() === appointment.patientId.toString();
+    // Object-level check: only the patient themself, the treating doctor, or
+    // staff of the booking organisation may touch this appointment.
+    const decision = await canManageAppointment(req.user!._id, req.user!.role, {
+      patientId: appointment.patientId,
+      doctorId: appointment.doctorId,
+      organizationId: appointment.organizationId,
+    });
 
-    if (isPatient && status !== 'cancelled') {
-      res.status(403).json({ success: false, error: 'Patients can only cancel their appointments.' });
+    if (!decision.allowed) {
+      await logAuditEvent({
+        actorId: req.user!._id as mongoose.Types.ObjectId,
+        actorEmail: req.user!.email,
+        actorRole: req.user!.role,
+        action: 'APPOINTMENT_ACCESS_DENIED',
+        targetType: 'Appointment',
+        targetId: appointment._id.toString(),
+        organizationId: appointment.organizationId as mongoose.Types.ObjectId,
+        details: { reason: decision.reason, detail: decision.detail, attemptedStatus: status },
+      });
+      sendError(
+        res,
+        403,
+        ErrorCode.FORBIDDEN,
+        'Access denied: you are not the patient, the treating doctor, or staff at the booking organisation.'
+      );
+      return;
+    }
+
+    // Patients are limited to cancelling their own appointment.
+    if (decision.reason === 'self' && status !== 'cancelled') {
+      sendError(res, 403, ErrorCode.FORBIDDEN, 'Patients can only cancel their appointments.');
       return;
     }
 
@@ -194,6 +226,9 @@ router.patch('/:id/status', authenticate, validateBody(updateStatusSchema), asyn
     });
 
     await appointment.save();
+
+    emitToUser(String(appointment.patientId), 'appointment:updated', { appointment });
+    if (appointment.doctorId) emitToUser(String(appointment.doctorId), 'appointment:updated', { appointment });
 
     await logAuditEvent({
       actorId: req.user!._id as mongoose.Types.ObjectId,
@@ -212,7 +247,33 @@ router.patch('/:id/status', authenticate, validateBody(updateStatusSchema), asyn
       data: appointment,
     });
   } catch (err: any) {
-    res.status(500).json({ success: false, error: err.message });
+    logger.error('Failed to update appointment status', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
+  }
+});
+
+// GET /api/v1/appointments/:id/slip - Download appointment slip as PDF
+router.get('/:id/slip', authenticate, async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const appt = await Appointment.findById(req.params.id).populate('patientId','name email phone').populate('doctorId','name email role');
+    if (!appt) { sendError(res, 404, ErrorCode.NOT_FOUND, 'Appointment not found.'); return; }
+    const isPatient = req.user!.role === 'patient';
+    if (isPatient && String(appt.patientId?._id || appt.patientId) !== String(req.user!._id)) { sendError(res, 403, ErrorCode.FORBIDDEN, 'Access denied.'); return; }
+    const lines: string[] = []
+    lines.push(`Doctor: ${(appt.doctorId as any)?.name || ''}`);
+    lines.push(`Patient: ${(appt.patientId as any)?.name || ''}`);
+    lines.push(`Date: ${appt.appointmentDate}`);
+    lines.push(`Time Slot: ${appt.timeSlot}`);
+    lines.push(`Status: ${appt.status}`);
+    lines.push(`Reason: ${appt.reason || ''}`);
+    if (appt.notes) lines.push(`Notes: ${appt.notes}`);
+    const buffer = await createPdfBuffer('Appointment Slip', lines);
+    res.setHeader('Content-Type','application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="appointment-${appt._id}.pdf"`);
+    res.send(buffer);
+  } catch (err: any) {
+    logger.error('Appointment slip PDF export failed', { error: err?.message });
+    sendError(res, 500, ErrorCode.INTERNAL, 'Internal server error.');
   }
 });
 
